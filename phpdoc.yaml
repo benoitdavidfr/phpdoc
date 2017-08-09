@@ -1,0 +1,54 @@
+title: PhpDoc2 - Documentation de scripts Php V2
+path: /phpdoc
+doc: |
+  PhpDoc définit une méthode générique de documentation de programmes Php fondée sur:
+  1) la création dans chaque répertoire concerné (ou module) d'un fichier phpdoc.yaml qui liste en YAML les scripts, les fichiers inclus 
+     et d'éventuels sous-modules
+  2) l'insertion dans chaque fichier .php ou .inc.php d'une documentation comme commentaires avec la chaine /*PhpDoc:
+     sous une forme structurée en YAML
+  3) le script phpdoc.php qui :
+    a) référence les modules de premier niveau,
+    b) affiche une documentation issue des éléments référencés
+    c) effectue des vérifications de cohérence entre les déclarations de la doc et le contenu effectif des répertoires et du code Php
+
+  Le code de PhpDoc est réparti dans différentes classes correspondant à chacun des concepts définis plus une classe générique
+  appellée Elt qui implémente les méthodes génériques aux différentes autres classes.
+  
+journal: |
+  9/8/2017:
+    modifs pour faciliter la description des bases MongoDB
+  19/4/2017:
+    typage des paramètres des méthodes (Php 7)
+  9/4/2017
+    - portage sur MacOsX:
+    - remplacement yaml_parse() et yaml_emit() par spycLoad() et spycDump()
+  21/2/2017
+    Revoir la gestion des appels entre fonction/méthodes:
+    Les liens use ne sont pas renseignés car trop nombreux et trop complexes à gérer.
+    Ces liens d'appels pourraient être gérés automatiquement dans la grande majorité des cas.
+  4/12/2016
+    ajout d'un mécanisme de précalcul pour accélérer l'affichage
+    Dans chaque module principal, un éventuel fichier phpdocagg.yaml stocke la doc pour l'ensemble du module.
+    Le fichier est utilisé, s'il existe, lors de l'affichage. Sinon, les fichiers référencés dans phpdoc.yaml sont consultés.
+    Le fichier est construit soit par une commande makeallagg sur le module racine soit par une commande makeagg sur un 
+    module. Il est détruit par la commande delagg.
+  30/11-1/12/2016:
+    ajout du test d'inclusion des fichiers
+  26-27/11/2016:
+    Récriture de phpdoc dans un souci de simplification du code notamment pour l'utiliser dans un contexte où les ressources
+    ne sont pas toutes présentes
+
+phpScripts:
+  - /phpdoc/phpdoc.php
+phpIncludes:
+  - /phpdoc/elt.inc.php
+  - /phpdoc/module.inc.php
+  - /phpdoc/htmlfile.inc.php
+  - /phpdoc/phpfile.inc.php
+  - /phpdoc/exyamlphp.inc.php
+#  - /phpdoc/veriftype.inc.php
+  - /phpdoc/sql.inc.php
+  - /phpdoc/exyamlfile.inc.php
+  - /phpdoc/synchro.inc.php
+htmlFiles:
+  - /phpdoc/root.yaml

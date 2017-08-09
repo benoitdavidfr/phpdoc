@@ -1,0 +1,46 @@
+title: root.yaml - Liste des modules documentés avec PhpDoc2
+path: /
+doc: |
+  Ce module constitue la racine de l'arbre des modules
+  Il est défini dans le fichier root.yaml
+journal: |
+  27/3/2017:
+    ajout de georef
+  3/12/2016:
+    ajout de gpp3dl et ogr2php
+  26-27/11/2016:
+    première version
+submodules:
+  - /phplib
+#  - /phpdoc1
+  - /phpdoc
+  - /synchro
+  - /spyc
+  - /georef
+  - /syscoord
+  - /syscoord2
+  - /geocat3
+  - /vieweval
+  - /gcatstat
+  - /gexplor
+  - /covadis
+  - /geobases
+  - /aspirgb
+  - /registry
+  - /geordf.eu
+  - /tools
+  - /autoconf
+  - /geoatom
+#  - /migcat1
+#  - /migcat2
+  - /migcat3
+#  - /migcat4
+  - /geoapi
+  - /geofla
+  - /ogr2php
+  - /geom2d
+  - /itowns2
+  - /gpp3dl
+  - /gcat
+  - /gcatmg
+  - /gcatas
