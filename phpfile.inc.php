@@ -4,6 +4,8 @@ name:  phpfile.inc.php
 title: phpfile.inc.php - définition des classes PhpFile, FunClassVar, Method, Parameter et Type
 classes:
 journal: |
+  9/8/2017:
+    ajout de la possibilité de documenter une propriété privée d'une classe
   19/4/2017:
     typage des paramètres des méthodes (Php 7)
   30/11-1/12/2016:
@@ -165,6 +167,7 @@ class FunClassVar extends InFile {
       'methods'=>'Method', // Les méthodes d'une classe
       'parameters'=>'Parameter', // Les paramètres d'une fonction
       'pubproperties'=>'FunClassVar', // Les propriéts publiques d'une classe
+      'privateproperties'=>'FunClassVar', // Les propriéts privées d'une classe
     ],
     'links'=>[
       'uses',  // Une fonction ou une classe peut réutiliser une fonction, une classe ou une méthode

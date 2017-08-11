@@ -8,6 +8,7 @@ doc: |
 journal: |
   9/8/2017:
     modifs pour faciliter la description des bases MongoDB
+    ajout de la possibilité de documenter une propriété privée d'une classe
   19/4/2017:
     typage des paramètres des méthodes (Php 7)
   26-27/11/2016:
@@ -31,6 +32,7 @@ abstract class Elt {
       'functions' => "Fonctions",
       'classes' => "Classes",
       'pubproperties' => "Propriétés publiques",
+      'privateproperties' => "Propriétés privées",
       'methods' => "Méthodes",
       'parameters' => "Paramètres",
       'variables' => "Variables",
