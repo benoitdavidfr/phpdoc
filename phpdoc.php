@@ -12,7 +12,7 @@ includes:
   - exyamlphp.inc.php
   - sql.inc.php
   - synchro.inc.php
-  - '..spyc/spyc2.inc.php'
+  - '../spyc/spyc2.inc.php'
 functions:
 doc: |
   Récriture de phpdoc dans un souci de simplification du code notamment pour l'utiliser dans un contexte où les ressources
@@ -54,19 +54,18 @@ function phpdoc(array $context) {
   $root = new Module(Elt::read_yaml('root.yaml'), $context);
 //  echo "<pre>root="; print_r($root);
   $root->solveLinks();
-  switch (isset($_GET['action']) ? $_GET['action'] : null) {
-    case null:
-      $root->show($context);
-      break;
-    default:
-      $action = $_GET['action'];
-      if (isset($_GET['key'])) {
-        $key = explode('/',$_GET['key']);
-        array_shift($key);
-        $elt = $root->access($key);
-        $elt->$action($context);
-      } else
-        $root->$action($context);
+  if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+    if (isset($_GET['key'])) {
+      $key = explode('/',$_GET['key']);
+      array_shift($key);
+      $elt = $root->access($key);
+      $elt->$action($context);
+    } else
+      $root->$action($context);
+  }
+  else {
+    $root->show($context);
   }
 }
 phpdoc($context);

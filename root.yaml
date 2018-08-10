@@ -36,11 +36,17 @@ submodules:
   - /migcat3
 #  - /migcat4
   - /geoapi
-  - /geofla
+#  - /geofla
   - /ogr2php
   - /geom2d
+  - /geometry
   - /itowns2
   - /gpp3dl
   - /gcat
   - /gcatmg
   - /gcatas
+  - /docker
+  - /ovh
+  - /gaspar
+  - /data
+  - /yamldoc

@@ -4,6 +4,8 @@ name:  exyamlfile.inc.php
 title: exyamlfile.inc.php - définit les fonctions extractYamlFromFile() et  extractYamlFromYamlFile()
 functions:
 journal: |
+  25/11/2017:
+    modif de extractYamlFromYamlFile()
   19/4/2017:
     typage des paramètres des méthodes (Php 7)
   3/3/2017
@@ -20,18 +22,20 @@ journal: |
   title: function extractYamlFromYamlFile(string $filepath) - Extrait une doc PhpDoc d'un fichier Yaml
   doc: |
     Extrait une doc PhpDoc d'un fichier Yaml
+    Si le fichier Yaml contient un champ phpDoc alors il est retourné
+    sinon un phpDoc est construit sur d'éventuels champs name, title et doc
 */
 function extractYamlFromYamlFile(string $filepath) {
   if (!($yaml = spycLoad($filepath)))
     die("Erreur de lecture de $filepath");
   if (isset($yaml['phpDoc']))
     return $yaml['phpDoc'];
-  if (isset($yaml['PhpDoc']))
-    return $yaml['PhpDoc'];
-  $name = (isset($yaml['name']) ? $yaml['name'] : basename($filepath));
+  $doc = ['name'=> (isset($yaml['name']) ? $yaml['name'] : basename($filepath))];
   if (isset($yaml['title']))
-    return ['name'=> $name, 'title'=> $yaml['title']];
-  throw new Exception("PhpDoc non trouvé dans extractYamlFromYamlFile($filepath)");
+    $doc['title'] = $yaml['title'];
+  if (isset($yaml['doc']))
+    $doc['doc'] = $yaml['doc'];
+  return $doc;
 }
 
 /*PhpDoc: functions

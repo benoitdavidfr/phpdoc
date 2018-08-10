@@ -1,0 +1,46 @@
+<?php
+/*PhpDoc:
+name:  calltab.php
+title: calltab.php - Construction d'un tableau d'appels
+includes: [ '../../phplib/yaml.inc.php', mysqlprms.inc.php ]
+doc: |
+journal: |
+  13/1/2016:
+    première version
+*/
+$phpsrc = '../../geom2d/tiledpolyg.inc.php';
+
+$tokens = token_get_all(file_get_contents($phpsrc));
+
+echo "<html><head><meta charset='UTF-8'><title>calltab</title></head><body>\n";
+$action = (isset($_GET['action']) ? $_GET['action'] : null);
+$actions = [];
+
+$actions['show_tokens'] = "affichage du tableau des tokens";
+if ($action=='show_tokens') {
+  echo "<table border=1><th>noligne</th><th>token</th><th>srce</th>\n";
+  foreach ($tokens as $token) {
+    echo "<tr><td>";
+    if (is_array($token))
+      echo $token[2],'</td><td><i>',token_name($token[0]),'</i></td><td>',$token[1];
+    else
+      echo '</td><td>',$token;
+    echo "</td></tr>\n";
+  }
+  echo "</table>\n";
+  die("FIN ligne ".__LINE__."\n");
+}
+
+$actions['show_funcclassmethod'] = "affichage les fonctions, classes et méthodes";
+if ($action=='show_funcclassmethod') {
+  foreach ($tokens as $no => $token)
+    if (is_array($token))
+      switch ($token[0]) {
+        case T_FUNCTION :
+          echo "$token[2] : function ",$tokens[$no+2][1],"<br>\n"; break;
+      }
+  die("FIN ligne ".__LINE__."\n");
+}
+
+foreach ($actions as $name => $title)
+  echo "<a href='?action=$name'>$title</a><br>\n";
