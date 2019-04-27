@@ -14,15 +14,22 @@ submodules:
   - /phplib
 #  - /phpdoc1
   - /phpdoc
+  - /docker
   - /synchro
   - /spyc
-  - /georef
+  - /gegeom
+  - /geometry
+  - /geom2d
+  - /coordsys
   - /syscoord
-  - /syscoord2
+  - /ogr2php
+  - /schema
+  - /geoapi
+  - /georef
+  - /gexplor
   - /geocat3
   - /vieweval
   - /gcatstat
-  - /gexplor
   - /covadis
   - /geobases
   - /aspirgb
@@ -35,17 +42,12 @@ submodules:
 #  - /migcat2
   - /migcat3
 #  - /migcat4
-  - /geoapi
 #  - /geofla
-  - /ogr2php
-  - /geom2d
-  - /geometry
   - /itowns2
   - /gpp3dl
   - /gcat
   - /gcatmg
   - /gcatas
-  - /docker
   - /ovh
   - /gaspar
   - /data

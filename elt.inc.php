@@ -6,6 +6,8 @@ classes:
 doc: |
   La classe Elt porte une grande partie des traitements de PhpDoc
 journal: |
+  27/4/2019:
+    remplacement de Spyc par le module Yaml de Symfony
   9/8/2017:
     modifs pour faciliter la description des bases MongoDB
     ajout de la possibilité de documenter une propriété privée d'une classe
@@ -14,6 +16,9 @@ journal: |
   26-27/11/2016:
     première version
 */
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 /*PhpDoc: classes
 name:  class Elt
 title: class Elt - Un élément générique de la doc
@@ -77,9 +82,8 @@ doc: |
 */
   function name() {
     if (!isset($this->properties['name'])) {
-//      return $this;
-//      echo "<pre>this=";
-//      print_r($this);
+      //return $this;
+      //echo "<pre>this="; print_r($this);
       throw new Exception("propriete name non definie dans ".__FILE__.", ligne ".__LINE__);
     } else
       return $this->properties['name'];
@@ -106,16 +110,19 @@ doc: |
 			return null;
     if (!($filecontents = file_get_contents($filename)))
       return null;
-    if ($yaml = spycLoad($filecontents))
-      return $yaml;
-    if ($yaml = spycLoad(utf8_encode($filecontents))) {
-      echo "<b>Attention $filename a été converti en UTF-8</b><br>\n";
-      return $yaml;
+    try {
+      return Yaml::parse($filecontents);
     }
-    echo "<h3>Erreur de lecture du fichier Yaml \"$filename\"</h3>\n";
-    echo "<pre>";
-    echo $filecontents;
-    throw new Exception("Erreur Yaml dans $filename");
+    catch(ParseException $e) {
+      try {
+        $yaml = Yaml::parse(utf8_encode($filecontents));
+        echo "<b>Attention $filename a été converti en UTF-8</b><br>\n";
+        return $yaml;
+      }
+      catch(ParseException $e) {}
+      echo "Erreur d'analyse Yaml dans $filename : ".$e->getMessage()."<br>\n";
+      throw new Exception("Erreur Yaml dans $filename");
+    }
   }
   
 /*PhpDoc: methods

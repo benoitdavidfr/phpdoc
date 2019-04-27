@@ -12,12 +12,13 @@ includes:
   - exyamlphp.inc.php
   - sql.inc.php
   - synchro.inc.php
-  - '../spyc/spyc2.inc.php'
 functions:
 doc: |
   Récriture de phpdoc dans un souci de simplification du code notamment pour l'utiliser dans un contexte où les ressources
   ne sont pas toutes présentes
 journal: |
+  27/4/2019:
+    remplacement de Spyc par le module Yaml de Symfony
   19/4/2017:
     typage des paramètres des méthodes (Php 7)
   4/12/2016:
@@ -25,15 +26,18 @@ journal: |
   26-27/11/2016:
     première version
 */
-require_once 'elt.inc.php';
-require_once 'module.inc.php';
-require_once 'htmlfile.inc.php';
-require_once 'exyamlfile.inc.php';
-require_once 'phpfile.inc.php';
-require_once 'exyamlphp.inc.php';
-require_once 'sql.inc.php';
-require_once 'synchro.inc.php';
-require_once '../spyc/spyc2.inc.php';
+require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/elt.inc.php';
+require_once __DIR__.'/module.inc.php';
+require_once __DIR__.'/htmlfile.inc.php';
+require_once __DIR__.'/exyamlfile.inc.php';
+require_once __DIR__.'/phpfile.inc.php';
+require_once __DIR__.'/exyamlphp.inc.php';
+require_once __DIR__.'/sql.inc.php';
+require_once __DIR__.'/synchro.inc.php';
+
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 echo "<html><head><meta charset='UTF-8'><title>phpdoc2</title></head><body>\n";
 
@@ -51,7 +55,7 @@ function phpdoc(array $context) {
 //  echo "phpdoc(): ligne ",__LINE__,"<br>\n";
 //  echo "<pre>context="; print_r($context); echo "</pre>\n";
 
-  $root = new Module(Elt::read_yaml('root.yaml'), $context);
+  $root = new Module(Elt::read_yaml(__DIR__.'/root.yaml'), $context);
 //  echo "<pre>root="; print_r($root);
   $root->solveLinks();
   if (isset($_GET['action'])) {

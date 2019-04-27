@@ -3,7 +3,42 @@
 name:  exyamlphp.inc.php
 title: exyamlphp.inc.php - définit la fonction extractYamlFromPhpFile()
 functions:
+  
+journal: |
+  27/4/2019:
+    remplacement de Spyc par le module Yaml de Symfony
+  19/4/2017:
+    typage des paramètres des méthodes (Php 7)
+  14/1/2017:
+    ajout de la possibilité d'ajouter une chaine derrière '/*PhpDoc:' qui sera recopiée dans le titre
+    L'objectif est d'afficher une chaine sur cette première ligne visible quand le commentaire est replié
+  26/11/2016:
+    adaptation pour PhpDoc2
+  30/5/2015:
+    Nouvelle version utilisant token_get_all() au lieu de la recherche de la chaine/*PhpDoc
 */
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
+// si la première ligne commence par des blancs, supprime ce nbre de blancs dans chaque ligne du texte
+function untab(string $text): string {
+  if (substr($text, 0, 1)<>' ')
+    return $text;
+  //echo "untab<pre>$text</pre>\n";
+  $nbblancs = 0;
+  while(substr($text, $nbblancs, 1) == ' ') {
+    $nbblancs++;
+  }
+  //echo "$nbblancs blancs\n";
+  $text = explode("\n", $text);
+  $newText = [];
+  foreach ($text as $line) {
+    $newText[] = substr($line, $nbblancs);
+  }
+  $newText = implode("\n", $newText);
+  //echo "untab<pre>$newText</pre>\n";
+  return $newText;
+}
 
 /*PhpDoc: functions
 name: extractYamlFromPhpFile
@@ -16,19 +51,7 @@ doc: |
   la chaine /*PhpDoc: est suivi d'un blanc et d'une chaine définissant le champ concerné d'un des commentaires précédents.
   Un modificateur peut aussi être ajouté après la chaine définissant le champ
   Retourne null is le fichier n'existe pas
-  
-journal: |
-  19/4/2017:
-    typage des paramètres des méthodes (Php 7)
-  14/1/2017:
-    ajout de la possibilité d'ajouter une chaine derrière '/*PhpDoc:' qui sera recopiée dans le titre
-    L'objectif est d'afficher une chaine sur cette première ligne visible quand le commentaire est replié
-  26/11/2016:
-    adaptation pour PhpDoc2
-  30/5/2015:
-    Nouvelle version utilisant token_get_all() au lieu de la recherche de la chaine/*PhpDoc
 */
-
 function extractYamlFromPhpFile(string $filepath) {
 //  echo "extractYamlFromPhpFile(filepath=$filepath)<br>\n";
   if (!is_file($filepath))
@@ -39,7 +62,7 @@ function extractYamlFromPhpFile(string $filepath) {
   foreach ($tokens as $token) {
     if (is_array($token) and ($token[0]==T_COMMENT) and (strncmp($token[1],'/*PhpDoc:',strlen('/*PhpDoc:'))==0)) {
       $comment = $token[1];
-//      echo "commentaire:<pre>$comment</pre>\n";
+      //echo "commentaire:<pre>$comment</pre>\n";
       if ($first) { // le premier commentaire a un format différent
         $name = '';
         $modif = '';
@@ -53,24 +76,26 @@ function extractYamlFromPhpFile(string $filepath) {
         $start = strlen($matches[0]);
       }
       $yamlText = substr($comment, $start, strlen($comment)-$start-2);
-//      echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
-      $yaml = spycLoad($yamlText);
-      if (isset($yaml['title']) and $modif)
-        $yaml['title'] .= ' - '.$modif;
-//      echo "yaml="; print_r($yaml); echo "<br>\n";
-      if (!$yaml) {
-        echo "Erreur de lecture du text yaml:</b><pre>\n$yamlText\n</pre><pre>\n";
+      $yamlText = untab($yamlText);
+      //echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
+      try {
+        $yaml = Yaml::parse($yamlText);
+      } catch (ParseException $e) {
+        echo "Erreur Yaml dans$filepath : ",$e->getMessage(),"<br>\n";
+        echo "<pre>$yamlText</pre>\n";
         throw new Exception("Erreur de lecture du text yaml dans extractYamlFromPhp()");
       }
+      if (isset($yaml['title']) && $modif)
+        $yaml['title'] .= ' - '.$modif;
       $yamls[] = [$name, $yaml];
     }
   }
   if (!$yamls)
     return '';
-//  echo "<pre>yamls avant agrégation="; print_r($yamls);  echo "</pre>\n";
+  //echo "<pre>yamls avant agrégation="; print_r($yamls);  echo "</pre>\n";
   while (count($yamls) > 1) {
     list($name,$yaml) = array_pop($yamls);
-//      echo "name='$name'<br>\n";
+    //echo "name='$name'<br>\n";
     $n = count($yamls);
     for ($i=$n-1; $i>=0; $i--)
       if (array_key_exists($name, $yamls[$i][1])) {

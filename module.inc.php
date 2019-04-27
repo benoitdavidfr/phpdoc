@@ -4,6 +4,9 @@ name:  module.inc.php
 title: module.inc.php - définition de la classe Module
 classes:
 journal: |
+  27/4/2019:
+    remplacement de Spyc par le module Yaml de Symfony
+    ajout d'un fichier phpdocagg.pser pour accélérer les lectures
   19/4/2017:
     typage des paramètres des méthodes (Php 7)
   17/2/2017
@@ -17,6 +20,9 @@ journal: |
   26-27/11/2016:
     première version
 */
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 /*PhpDoc: classes
 name:  class Module
 title: class Module extends Elt - module ou sous-module
@@ -62,17 +68,28 @@ doc: |
   $param est généralement le nom du répertoire, il peut aussi être un tableau de paramètres
 */
   function __construct($param, array $context) {
-    if (isset($_GET['debug']) and $_GET['debug']) {
+    if (isset($_GET['debug']) && $_GET['debug']) {
       echo "Appel de ",get_class($this),"::__construct() avec param=<pre>"; var_dump($param); echo "</pre>\n";
     }
     if (!is_array($param)) {
-      if (!($yaml = parent::read_yaml('..'.$param.'/phpdocagg.yaml')))
-        if (!($yaml = parent::read_yaml('..'.$param.'/phpdoc.yaml'))) {
-          $this->properties['title'] = "$param - Not found";
-          $this->fileNotFound = true;
-          return;
-        }
-      $param = $yaml;
+      if (is_file(__DIR__.'/..'.$param.'/phpdocagg.pser')) {
+        $yaml = unserialize(file_get_contents('..'.$param.'/phpdocagg.pser'));
+        //echo "Lecture de $param/phpdocagg.pser OK<br>\n";
+        $param = $yaml;
+      }
+      elseif ($yaml = parent::read_yaml(__DIR__.'/..'.$param.'/phpdocagg.yaml')) {
+        //echo "Lecture de $param/phpdocagg.yaml OK<br>\n";
+        $param = $yaml;
+      }
+      elseif ($yaml = parent::read_yaml('..'.$param.'/phpdoc.yaml')) {
+        //echo "Lecture de $param/phpdoc.yaml OK<br>\n";
+        $param = $yaml;
+      }
+      else {
+        $this->properties['title'] = "$param - Not found";
+        $this->fileNotFound = true;
+        return;
+      }
     }
     $this->init($param, $context);
   }
@@ -255,7 +272,7 @@ title: function yaml() - fabrique le Yaml correspondant à un module sous la for
 doc: |
   Utilisé par makeagg()
 */
-  function yaml($dirpath=null) {
+  private function yaml($dirpath=null) {
 //    echo "Module::yaml(dirpath=$dirpath)<br>\n";
 //    $this->dump();
     $dirpath = '..'.$this->properties['path'].'/';
@@ -288,13 +305,14 @@ doc: |
 */
   function makeagg(array $context=null) {
     $yaml = $this->yaml();
-//    echo "<pre>yaml="; print_r($yaml); echo "</pre>\n";
-//    echo "<pre>",yaml_emit($yaml,YAML_UTF8_ENCODING),"</pre>";
+    //echo "<pre>yaml="; print_r($yaml); echo "</pre>\n";
+    //echo "<pre>",yaml_emit($yaml,YAML_UTF8_ENCODING),"</pre>";
     $dirpath = '..'.$this->properties['path'];
-    file_put_contents("$dirpath/phpdocagg.yaml", spycDump($yaml));
-    echo "Création de '$dirpath/phpdocagg.yaml' OK<br>\n";
-// Si la méthode est appelée par phpdoc.php alors affichage de l'objet
-    if ($context!==null)
+    file_put_contents("$dirpath/phpdocagg.yaml", Yaml::dump($yaml));
+    file_put_contents("$dirpath/phpdocagg.pser", serialize($yaml));
+    echo "Création de '$dirpath/phpdocagg.yaml/pser' OK<br>\n";
+    // Si la méthode est appelée par phpdoc.php alors affichage de l'objet
+    if ($context !== null)
       $this->show();
   }
   
@@ -310,6 +328,10 @@ doc: |
   function delagg($context) {
     if (!isset($context['delagg'])) {
       $dirpath = '..'.$this->properties['path'];
+      if (is_file("$dirpath/phpdocagg.pser")) {
+        unlink("$dirpath/phpdocagg.pser");
+        echo "Suppression de '$dirpath/phpdocagg.pser' OK<br>\n";
+      }
       if (is_file("$dirpath/phpdocagg.yaml")) {
         unlink("$dirpath/phpdocagg.yaml");
         echo "Suppression de '$dirpath/phpdocagg.yaml' OK<br>\n",

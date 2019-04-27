@@ -4,6 +4,8 @@ name:  exyamlfile.inc.php
 title: exyamlfile.inc.php - définit les fonctions extractYamlFromFile() et  extractYamlFromYamlFile()
 functions:
 journal: |
+  27/4/2019:
+    remplacement de Spyc par le module Yaml de Symfony
   25/11/2017:
     modif de extractYamlFromYamlFile()
   19/4/2017:
@@ -17,17 +19,24 @@ journal: |
   25/10/2016
     Ajout des fichiers JS et CSS
 */
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
+
 /*PhpDoc: functions
-  name: extractYamlFromYamlFile
-  title: function extractYamlFromYamlFile(string $filepath) - Extrait une doc PhpDoc d'un fichier Yaml
-  doc: |
-    Extrait une doc PhpDoc d'un fichier Yaml
-    Si le fichier Yaml contient un champ phpDoc alors il est retourné
-    sinon un phpDoc est construit sur d'éventuels champs name, title et doc
+name: extractYamlFromYamlFile
+title: function extractYamlFromYamlFile(string $filepath) - Extrait une doc PhpDoc d'un fichier Yaml
+doc: |
+  Extrait une doc PhpDoc d'un fichier Yaml
+  Si le fichier Yaml contient un champ phpDoc alors il est retourné
+  sinon un phpDoc est construit sur d'éventuels champs name, title et doc
 */
 function extractYamlFromYamlFile(string $filepath) {
-  if (!($yaml = spycLoad($filepath)))
-    die("Erreur de lecture de $filepath");
+  try {
+    $yaml = Yaml::parse($filepath);
+  }
+  catch(ParseException $e) {
+    die("Erreur de lecture Yaml dans $filepath : ".$e->getMessage());
+  }
   if (isset($yaml['phpDoc']))
     return $yaml['phpDoc'];
   $doc = ['name'=> (isset($yaml['name']) ? $yaml['name'] : basename($filepath))];
@@ -39,10 +48,10 @@ function extractYamlFromYamlFile(string $filepath) {
 }
 
 /*PhpDoc: functions
-  name: extractYamlFromFile
-  title: function extractYamlFromFile(string $filepath) - Extrait une doc PhpDoc d'un fichier
-  doc: |
-    Extrait une doc PhpDoc d'un fichier SQL, HTML, JS ou CSS. L'extension du nom du fichier est utilisé pour détecter le type de fichier.
+name: extractYamlFromFile
+title: function extractYamlFromFile(string $filepath) - Extrait une doc PhpDoc d'un fichier
+doc: |
+  Extrait une doc PhpDoc d'un fichier SQL, HTML, JS ou CSS. L'extension du nom du fichier est utilisé pour détecter le type de fichier.
 */
 function extractYamlFromFile(string $filepath) {
 //  echo "function extractYamlFromFile($filepath)<br>\n";
@@ -65,19 +74,21 @@ function extractYamlFromFile(string $filepath) {
   $filecontents = file_get_contents($filepath);
   $start = strpos($filecontents, $seps['start'].'PhpDoc:');
   if ($start === false) {
-//    echo "start === false<br>\n";
+    //echo "start === false<br>\n";
     return '';
   }
-//  echo "start=$start<br>\n";
+  //echo "start=$start<br>\n";
   $start += strlen($seps['start'].'PhpDoc:');
   $end = strpos($filecontents, $seps['end'], $start);
   $yamlText = substr($filecontents, $start, $end-$start);
-//    echo "start=$start, end=$end<br>\n";
-//    echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
-  $yaml = spycLoad($yamlText);
-  if (!$yaml) {
+  //echo "start=$start, end=$end<br>\n";
+  //echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
+  try {
+    $yaml = Yaml::parse($yamlText);
+  }
+  catch(ParseException $e) {
     echo "Erreur de lecture du text yaml:</b><pre>\n$yamlText\n</pre><pre>\n";
-    throw new Exception("Erreur de lecture du text yaml dans extractYamlFromFile($filepath)");
+    throw new Exception("Erreur de lecture du text yaml dans extractYamlFromFile($filepath) : ".$e->getMessage());
   }
   $yamls[0] = ['', $yaml];
   
@@ -88,22 +99,24 @@ function extractYamlFromFile(string $filepath) {
       $start += strlen($matches[0]);
     } else
       throw new Exception("nom non trouvé dans extractYamlFromFile($filepath)");
-//      echo "<pre>start=$start, name=$name\n"; echo "</pre>\n";
+    //echo "<pre>start=$start, name=$name\n"; echo "</pre>\n";
     $end = strpos($filecontents, $seps['end'], $start);
     $yamlText = substr($filecontents, $start, $end-$start);
-//      echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
-    $yaml = spycLoad($yamlText);
-    if (!$yaml) {
+    //echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
+    try {
+      $yaml = Yaml::parse($yamlText);
+    }
+    catch(ParseException $e) {
       echo "Erreur de lecture du text yaml:</b><pre>\n$yamlText\n</pre><pre>\n";
-      throw new Exception("Erreur de lecture du text yaml dans extractYamlFromFile($filepath)");
+      throw new Exception("Erreur de lecture du text yaml dans extractYamlFromFile($filepath) : ".$e->getMessage());
     }
     $yamls[] = [$name, $yaml];
   }
-//  echo "<pre>yamls avant agrégation="; print_r($yamls);  echo "</pre>\n";
+  //  echo "<pre>yamls avant agrégation="; print_r($yamls);  echo "</pre>\n";
   
   while (count($yamls) > 1) {
     list($name,$yaml) = array_pop($yamls);
-//      echo "name='$name'<br>\n";
+    //echo "name='$name'<br>\n";
     $n = count($yamls);
     for ($i=$n-1; $i>=0; $i--)
       if (array_key_exists($name, $yamls[$i][1])) {
@@ -118,6 +131,6 @@ function extractYamlFromFile(string $filepath) {
       throw new Exception("Erreur name '$name' non trouvé pour l'affectation dans extractYamlFromFile($filepath)");
     }
   }
-//  echo "<pre>yamls après agrégation="; print_r($yamls);  echo "</pre>\n";
+  //echo "<pre>yamls après agrégation="; print_r($yamls);  echo "</pre>\n";
   return $yamls[0][1];
 }
