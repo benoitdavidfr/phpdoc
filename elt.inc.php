@@ -76,36 +76,34 @@ abstract class Elt {
   
 /*PhpDoc: methods
 name:  name
-title: function name() - Renvoie le nom de l'élément ou s'il n'est pas défini la chaine correspondant à $this
+title: "function name(): string - Renvoie le nom de l'élément ou s'il n'est pas défini la chaine correspondant à $this"
 doc: |
   Un module n'a pas de propriété name, une méthode spécifique est définie pour la classe Module
 */
-  function name() {
-    if (!isset($this->properties['name'])) {
-      //return $this;
-      //echo "<pre>this="; print_r($this);
-      throw new Exception("propriete name non definie dans ".__FILE__.", ligne ".__LINE__);
-    } else
+  function name(): string {
+    if (isset($this->properties['name']))
       return $this->properties['name'];
+    else
+      throw new Exception("propriete name non definie dans ".__FILE__.", ligne ".__LINE__);
   }
   
 /*PhpDoc: methods
 name:  title
-title: function title() - Renvoie le titre de l'élément ou s'il n'est pas défini son nom
+title: "function title(): string - Renvoie le titre de l'élément ou s'il n'est pas défini son nom"
 */
-  function title() {
+  function title(): string {
     return (!isset($this->properties['title']) ? $this->name() : $this->properties['title']);
   }
   
 /*PhpDoc: methods
 name:  read_yaml
-title: static function read_yaml(string $filename) - Lit un fichier Yaml et retourne son contenu comme tableau Php ou null
+title: "static function read_yaml(string $filename): ?array - Lit un fichier Yaml et retourne son contenu comme tableau Php ou null"
 doc: |
   Si le fichier n'existe pas alors null est retourné
   Si l'analyse Yaml est incorrecte alors une exception est levée
   Si le fichier est encodé en ISO Latin1 au lieu de UTF-8 une alerte est affichée
 */
-  static function read_yaml(string $filename) {
+  static function read_yaml(string $filename): ?array {
 		if (!is_file($filename))
 			return null;
     if (!($filecontents = file_get_contents($filename)))
@@ -127,14 +125,14 @@ doc: |
   
 /*PhpDoc: methods
 name:  init
-title: function init(array $params, array $context) - effectue l'initialisation d'un elt à partir de $params et du contexte
+title: "function init(array $params, array $context): void - effectue l'init. d'un elt à partir de $params et du contexte"
 doc: |
   $params est un tableau Php correspondant au contenu du fichier Yaml définissant l'objet
   $context est le contexte d'utilisation
     si $context[verbose] est faux et que l'objet est marqué fileNotFound, cad que le fichier yaml correspondant n'a pas été
     trouvé, alors les sous-objets ne sont pas intégrés dans l'arbre
 */
-  function init(array $params, array $context) {
+  function init(array $params, array $context): void {
     if (!is_array($params)) {
       echo "<pre>";
       throw new Exception("Erreur dans Elt::init() : params n'est pas un tableau");
@@ -191,36 +189,36 @@ doc: |
     
 /*PhpDoc: methods
 name:  setParent
-title: function setParent(Elt $parent) - affecte le champ parent
+title: "function setParent(Elt $parent): void - affecte le champ parent"
 */
-  function setParent(Elt $parent) { $this->parent = $parent; }
+  function setParent(Elt $parent): void { $this->parent = $parent; }
   
 /*PhpDoc: methods
 name:  setLocalKey
-title: function setLocalKey(string $localKey) - affecte la clé locale, cad la clé de navigation définie par rapport à son parent
+title: "function setLocalKey(string $localKey): void - affecte la clé locale, cad la clé de navigation définie par rapport à son parent"
 doc: |
   localKey est la clé de l'élément utilisée dans la navigation avec access()
   local signifie que c'est la clé par rapport à son élément parent
 */
-  function setLocalKey(string $localKey) { $this->localKey = $localKey; }
+  function setLocalKey(string $localKey): void { $this->localKey = $localKey; }
   
 /*PhpDoc: methods
 name:  globalKey
-title: function globalKey() - calcule la clé globale, cad la clé absolue de l'élément par rapport à la racine
+title: "function globalKey(): string - calcule la clé globale, cad la clé absolue de l'élément par rapport à la racine"
 */
-  function globalKey() {
+  function globalKey(): string {
     return ($this->parent ? $this->parent->globalKey() .'/' : '').$this->localKey;
   }
   
 /*PhpDoc: methods
 name:  access
-title: function access($key) - implémente la navigation dans l'arbre au moyen des clés
+title: "function access($key): Elt - implémente la navigation dans l'arbre au moyen des clés"
 doc: |
   Chaque élément est identifié dans l'arbre au moyen de sa clé globale (globalKey)
   access() parcourt l'arbre récursivement et renvoie l'élément identifié par la clé
 */
-  function access(array $key) {
-//      echo "Elt::access(key="; print_r($key); echo ")<br>\n";
+  function access(array $key): Elt {
+    //echo "Elt::access(key="; print_r($key); echo ")<br>\n";
     if (!$key)
       return $this;
     $k0 = array_shift($key);
@@ -230,23 +228,24 @@ doc: |
   
 /*PhpDoc: methods
 name:  __toString
-title: function __toString() - retourne une chaine courte correspondant à l'élément
+title: "function __toString(): string - retourne une chaine courte correspondant à l'élément"
 doc: |
   Utilisée principalement pour le déverminage
 */
-  function __toString() { return get_class($this).': '.$this->name(); }
+  function __toString(): string { return get_class($this).': '.$this->name(); }
   
 /*PhpDoc: methods
 name:  show
-title: function show() - affiche l'élément
+title: "function show(): void - affiche l'élément"
 */
-  function show() {
-//    echo "<pre>this="; print_r($this); echo "</pre>\n";
+  function show(): void {
+    //echo "<pre>this="; print_r($this); echo "</pre>\n";
     echo "<h2>",$this->title(),"</h2>\n";
     $eltType = get_class($this);
     echo "<table border=1>\n";
     if ($this->parent)
-      echo "<tr><td>parent</td><td><a href='?action=show&amp;key=",urlencode($this->parent->globalKey()),"'>",$this->parent,"</a></td></tr>\n";
+      echo "<tr><td>parent</td><td><a href='?action=show&amp;key=",urlencode($this->parent->globalKey()),"'>",
+        $this->parent,"</a></td></tr>\n";
     foreach ($this->properties as $propName => $propValue) {
       $type = $eltType::$structure['properties'][$propName];
       echo "<tr><td>$propName</td>",
@@ -279,18 +278,18 @@ title: function show() - affiche l'élément
     echo "<a href='?action=dump&amp;key=",urlencode($this->globalKey()),"'>dump</a><br>\n";
   }
   
-  function hreflinktitle(string $action) {
+  function hreflinktitle(string $action): string {
     return  "<a href='?action=$action&amp;key=".urlencode($this->globalkey())."'>".$this->title()."</a>";
   }
-  function hreflink(string $action) {
+  function hreflink(string $action): string {
     return  "<a href='?action=$action&amp;key=".urlencode($this->globalkey())."'>$this</a>";
   }
   
 /*PhpDoc: methods
 name:  dump
-title: function dump() - affiche l'élément
+title: "function dump(): void - affiche l'élément"
 */
-  function dump() {
+  function dump(): void {
     echo "<pre>$this\n";
     if ($this->parent)
       echo "parent: ",$this->parent->hreflink('dump'),"\n";
@@ -310,9 +309,9 @@ title: function dump() - affiche l'élément
 
 /*PhpDoc: methods
 name:  findChildByName
-title: function findChildByName(string $name) - retrouve un enfant par son nom
+title: "function findChildByName(string $name): ?Elt - retrouve un enfant par son nom"
 */
-  function findChildByName(string $name) {
+  function findChildByName(string $name): ?Elt {
     foreach ($this->children as $categoryName => $children)
       if ($categoryName<>'submodules')
         foreach ($children as $child)
@@ -323,9 +322,9 @@ title: function findChildByName(string $name) - retrouve un enfant par son nom
   
 /*PhpDoc: methods
 name:  links
-title: function links() - Affichage des liens, utile en dév.
+title: "function links(): void - Affichage des liens, utile en dév."
 */
-  function links() {
+  function links(): void {
     echo "<li>",$this->title(),"<ul>\n";
     foreach ($this->children as $categoryName => $children)
       foreach ($children as $child)
@@ -338,20 +337,21 @@ title: function links() - Affichage des liens, utile en dév.
   
 /*PhpDoc: methods
 name:  links
-title: function module() - Renvoie le module auquel appartient l'élément
+title: "function module(): Module - Renvoie le module auquel appartient l'élément"
 doc: |
   Par défaut le module est le module du père
   Une méthode sur la classe Module renvoie l'objet lui-même
 */
-  function module() { return $this->parent->module(); }
+  function module(): Module { return $this->parent->module(); }
+  
 /*PhpDoc: methods
 name:  file
-title: function file() - Renvoie le fichier auquel appartient l'élément
+title: "function file(): File - Renvoie le fichier auquel appartient l'élément"
 doc: |
   Par défaut le fichier est le fichier du père
   Une méthode sur les classes PhpFile, HtmlFile et SqlFile renvoie l'objet lui-même
 */
-  function file() {
+  function file(): File {
     try {
       if (!$this->parent)
         throw new Exception("parent null dans Elt::file() sur $this ligne ".__LINE__." de ".__FILE__);
@@ -363,9 +363,9 @@ doc: |
   
 /*PhpDoc: methods
 name:  solveLink
-title: function solveLink(string $categoryName, string $link) - Trouve l'objet correspondant au lien
+title: "function solveLink(string $categoryName, string $link): Elt - Trouve l'objet correspondant au lien"
 */
-  function solveLink(string $categoryName, string $link) {
+  function solveLink(string $categoryName, string $link): Elt {
 //    $eltType = get_class($this);
 //    echo "<li>solveLink(eltType=$eltType,categoryName=$categoryName,link=$link)\n";
     if (strncmp($link,'?',1)<>0) {
@@ -380,9 +380,9 @@ title: function solveLink(string $categoryName, string $link) - Trouve l'objet c
   
 /*PhpDoc: methods
 name:  solveLinks
-title: function solveLinks() - résoud les liens, cad traduit le string en objet
+title: "function solveLinks(): void - résoud les liens, cad traduit le string en objet"
 */
-  function solveLinks() {
+  function solveLinks(): void {
     foreach ($this->links as $categoryName => $links)
       foreach ($links as $link)
         try {
@@ -402,9 +402,9 @@ title: function solveLinks() - résoud les liens, cad traduit le string en objet
   
 /*PhpDoc: methods
 name:  listCategories
-title: function listCategories($level=0, &$categoryNames=[]) - liste les catégories, utile en dév.
+title: "function listCategories($level=0, &$categoryNames=[]): array - liste les catégories, utile en dév."
 */
-  function listCategories($level=0, &$categoryNames=[]) {
+  function listCategories($level=0, &$categoryNames=[]): array {
 //    echo "Elt::listCategories(level=$level) sur $this<br>\n";
     if (!$categoryNames)
       $categoryNames = [

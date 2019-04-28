@@ -41,24 +41,24 @@ title: function __construct($param, array $context) - crée un objet File à par
   
 /*PhpDoc: methods
 name:  yaml
-title: function yaml(string $dirpath) - fabrique sous la forme d'un tableau Php le Yaml correspondant à un fichier
+title: "function yaml(string $dirpath): array - fabrique sous la forme d'un tableau Php le Yaml correspondant à un fichier"
 */
-  function yaml(string $dirpath) {
-//    echo "File::yaml(dirpath=$dirpath)<br>\n";
+  function yaml(string $dirpath): array {
+    //echo "File::yaml(dirpath=$dirpath)<br>\n";
     $name = $this->properties['name'];
-//    echo "dirpath=$dirpath<br>\n";
-//    echo "name=$name<br>\n";
-//    $this->dump();
+    //echo "dirpath=$dirpath<br>\n";
+    //echo "name=$name<br>\n";
+    //$this->dump();
     $yaml = extractYamlFromFile($dirpath.$name);
-//    echo "<pre>"; print_r($yaml); echo "</pre>\n";
+    //echo "<pre>"; print_r($yaml); echo "</pre>\n";
     return $yaml;
   }
   
 /*PhpDoc: methods
 name:  file
-title: function file() - Renvoie le fichier auquel appartient l'élément, pour un file renvoie l'objet lui-même
+title: "function file(): File - Renvoie le fichier auquel appartient l'élément, pour un file renvoie l'objet lui-même"
 */
-  function file() { return $this; }
+  function file(): File { return $this; }
 };
 
 /*PhpDoc: classes

@@ -1,8 +1,9 @@
 <?php
-/*PhpDoc:
+{/*PhpDoc:
 name:  phpdoc.php
 title: phpdoc.php - affichage de la doc PhpDoc
 includes:
+  - ../vendor/autoload.php
   - root.yaml
   - elt.inc.php
   - module.inc.php
@@ -17,15 +18,16 @@ doc: |
   Récriture de phpdoc dans un souci de simplification du code notamment pour l'utiliser dans un contexte où les ressources
   ne sont pas toutes présentes
 journal: |
-  27/4/2019:
-    remplacement de Spyc par le module Yaml de Symfony
+  27-28/4/2019:
+    - remplacement de Spyc par le module Yaml de Symfony
+    - améliorations diverses
   19/4/2017:
     typage des paramètres des méthodes (Php 7)
   4/12/2016:
     Ajout de la fonction phpdoc() permettant d'effectuer une relecture des fichiers phpdoc lors de la suppression d'un phpdocagg.yaml
   26-27/11/2016:
     première version
-*/
+*/}
 require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/elt.inc.php';
 require_once __DIR__.'/module.inc.php';
@@ -47,17 +49,18 @@ $context = [
 
 /*PhpDoc: functions
 name:  phpdoc
-title: function phpdoc(array $context)
+title: "function phpdoc(array $context): void - Permet d'effectuer une relecture des fichiers phpdoc"
 doc: |
   Permet d'effectuer une relecture des fichiers phpdoc lors de la suppression d'un phpdocagg.yaml
 */
-function phpdoc(array $context) {
-//  echo "phpdoc(): ligne ",__LINE__,"<br>\n";
-//  echo "<pre>context="; print_r($context); echo "</pre>\n";
+function phpdoc(array $context): void {
+  //echo "phpdoc(): ligne ",__LINE__,"<br>\n";
+  //echo "<pre>context="; print_r($context); echo "</pre>\n";
 
   $root = new Module(Elt::read_yaml(__DIR__.'/root.yaml'), $context);
-//  echo "<pre>root="; print_r($root);
+  //echo "<pre>root="; print_r($root);
   $root->solveLinks();
+  $root->store(__DIR__.'/root.pser');
   if (isset($_GET['action'])) {
     $action = $_GET['action'];
     if (isset($_GET['key'])) {

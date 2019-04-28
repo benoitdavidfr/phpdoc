@@ -17,8 +17,10 @@ doc: |
   Source publié sur: https://github.com/benoitdavidfr/phpdoc
   
 journal: |
-  27/4/2019:
-    remplacement de Spyc par le module Yaml de Symfony
+  27-28/4/2019:
+    - remplacement de Spyc par le module Yaml de Symfony
+    - ajout dans phpdoc.php de l'écriture de root.pser
+    - ajout du script index.php pour consulter la doc à partir de root.pser
   9/8/2017:
     modifs pour faciliter la description des bases MongoDB
   19/4/2017:
@@ -43,6 +45,7 @@ journal: |
     ne sont pas toutes présentes
 
 phpScripts:
+  - /phpdoc/index.php
   - /phpdoc/phpdoc.php
 phpIncludes:
   - /phpdoc/elt.inc.php

@@ -51,9 +51,9 @@ class Module extends Elt {
   
 /*PhpDoc: methods
 name:  name
-title: function name() - Le nom d'un module est son path
+title: "function name(): string - Le nom d'un module est son path"
 */
-  function name() {
+  function name(): string {
     if (!isset($this->properties['path'])) {
       echo "<pre>";
       throw new Exception("propriete path non definie dans ".__FILE__.", ligne ".__LINE__);
@@ -98,13 +98,13 @@ doc: |
 name:  module
 title: function module() - Retourne le module contenant l'objet ; pour un module, c'est le module lui-même
 */
-  function module() { return $this; }
+  function module(): Module { return $this; }
   
 /*PhpDoc: methods
 name:  submodule
-title: function submodule(string $name) - Renvoie le sous-module portant le nom indiqué
+title: "function submodule(string $name): Module - Renvoie le sous-module portant le nom indiqué"
 */
-  function submodule(string $name) {
+  function submodule(string $name): Module {
 //    echo "<pre>this="; print_r($this); echo "</pre>\n";
 //    echo "<br>Module::submodule($name) sur $this\n";
     if (!isset($this->children['submodules']))
@@ -128,10 +128,10 @@ title: function submodule(string $name) - Renvoie le sous-module portant le nom 
   
 /*PhpDoc: methods
 name:  solveLink
-title: function solveLink(string $categoryName, string $link) - Résoud un lien
+title: "function solveLink(string $categoryName, string $link): Elt - Résoud un lien"
 */
-  function solveLink(string $categoryName, string $link) {
-//    echo "<br>Module::solveLink($categoryName, $link) sur $this\n";
+  function solveLink(string $categoryName, string $link): Elt {
+    //echo "<br>Module::solveLink($categoryName, $link) sur $this\n";
     if (strncmp($link,'../',3)==0) {
       if (!$this->parent)
         throw new Exception("lien '$link' non trouvé dans le module $this");
@@ -139,8 +139,8 @@ title: function solveLink(string $categoryName, string $link) - Résoud un lien
     }
     if (($pos=strpos($link,'/')) !== FALSE) {
       $submodule = substr($link, 0, $pos);
-//      echo "<br>submodule=$submodule\n";
-//      echo "<br>link=",substr($link,$pos+1),"\n";
+      //echo "<br>submodule=$submodule\n";
+      //echo "<br>link=",substr($link,$pos+1),"\n";
       return $this->submodule($submodule)->solveLink($categoryName, substr($link,$pos+1));
     }
     if (($pos=strpos($link,'?')) !== FALSE) {
@@ -150,7 +150,7 @@ title: function solveLink(string $categoryName, string $link) - Résoud un lien
       $filename = $link;
       $anchor = null;
     }
-//    echo "<br>filename=$filename\n";
+    //echo "<br>filename=$filename\n";
     if (!($child = $this->findChildByName($filename)))
       throw new Exception("lien '$link' non trouvé dans le module $this");
     if (!$anchor)
@@ -161,10 +161,10 @@ title: function solveLink(string $categoryName, string $link) - Résoud un lien
   
 /*PhpDoc: methods
 name: show
-title: function show() - redéfinition de show()
+title: "function show(): void - redéfinition de show()"
 doc: en plus de l'affichage générique, sur un module des actions sont proposées
 */
-  function show() {
+  function show(): void {
     parent::show();
     echo "<a href='?action=notdocFiles&amp;key=",urlencode($this->globalKey()),
          "'>Liste des fichiers non documentés</a><br>";
@@ -182,9 +182,9 @@ doc: en plus de l'affichage générique, sur un module des actions sont proposé
   
 /*PhpDoc: methods
 name: listfiles
-title: function listfiles() - liste des fichiers
+title: "function listfiles(): void - affiche la liste des fichiers"
 */
-  function listfiles() {
+  function listfiles(): void {
     if (!$this->parent)
       echo "<pre>";
     echo $this->properties['path'],"\n";
@@ -201,9 +201,9 @@ title: function listfiles() - liste des fichiers
   
 /*PhpDoc: methods
 name: notdocFiles
-title: function notdocFiles() - Compare les fichiers définis et les fichiers existants
+title: function ToDELETEnotdocFiles() - Compare les fichiers définis et les fichiers existants
 */
-  function notdocFiles() {
+  function ToDELETEnotdocFiles() {
     $dir = $this->properties['path'];
     if (!is_dir('..'.$dir)) {
       echo "Ce module ne correspond pas à un répertoire<br>\n";
@@ -245,9 +245,9 @@ title: function notdocFiles() - Compare les fichiers définis et les fichiers ex
   
 /*PhpDoc: methods
 name: verifyInc
-title: function verifyInc() - Vérification de la liste des fichiers inclus pour tous les fichiers Php et inclus du module
+title: "function verifyInc(): void - Vérification de la liste des fichiers inclus pour tous les fichiers Php et inclus du module"
 */
-  function verifyInc() {
+  function verifyInc(): void {
     $dirpath = $this->properties['path'];
     if (!is_dir('..'.$dirpath)) {
       echo "Ce module ne correspond pas à un répertoire<br>\n";
@@ -256,8 +256,8 @@ title: function verifyInc() - Vérification de la liste des fichiers inclus pour
     foreach ([
         'phpScripts'=>"Scripts Php",
         'phpIncludes'=>"Fichiers Php inclus",
-//        'htmlFiles'=>"Fichiers Html,...",
-//        'sqlFiles'=>"Fichiers Sql",
+        //'htmlFiles'=>"Fichiers Html,...",
+        //'sqlFiles'=>"Fichiers Sql",
       ] as $category=>$title)
       if (isset($this->children[$category])) {
         echo "<h2>Scripts Php de $dirpath</h2>\n";
@@ -268,11 +268,11 @@ title: function verifyInc() - Vérification de la liste des fichiers inclus pour
   
 /*PhpDoc: methods
 name:  yaml
-title: function yaml() - fabrique le Yaml correspondant à un module sous la forme d'un tableau Php
+title: "private function yaml(): array - fabrique le Yaml correspondant à un module sous la forme d'un tableau Php"
 doc: |
   Utilisé par makeagg()
 */
-  private function yaml($dirpath=null) {
+  private function yaml($dirpath=null): array {
 //    echo "Module::yaml(dirpath=$dirpath)<br>\n";
 //    $this->dump();
     $dirpath = '..'.$this->properties['path'].'/';
@@ -297,13 +297,13 @@ doc: |
   
 /*PhpDoc: methods
 name: makeagg
-title: function makeagg($context=null) - fabrique un phpdocagg.yaml qui intègre en un fichier tte la doc du module
+title: "function makeagg($context=null): void - fabrique phpdocagg.yaml/pser qui intègrent en un fichier tte la doc du module"
 doc: |
   Le paramètre context :
   - contient effectivement le contexte si la méthode est appelée par phpdoc.php
   - vaut null si la méthode est appelée par makeallagg()
 */
-  function makeagg(array $context=null) {
+  function makeagg(array $context=null): void {
     $yaml = $this->yaml();
     //echo "<pre>yaml="; print_r($yaml); echo "</pre>\n";
     //echo "<pre>",yaml_emit($yaml,YAML_UTF8_ENCODING),"</pre>";
@@ -318,14 +318,14 @@ doc: |
   
 /*PhpDoc: methods
 name: delagg
-title: function delagg() - suppression du phpdocagg.yaml
+title: "function delagg(): void - suppression du phpdocagg.yaml"
 doc: |
   Après avoir supprimé le fichier phpdocagg.yaml, le contenu de la doc est probablement différent
   Il est donc important de relire les fichiers de doc.
   L'appel de phpdoc() permet d'effectuer cette relecture.
   Pour éviter de boucler le contexte est modifié et est testé.
 */
-  function delagg($context) {
+  function delagg($context): void {
     if (!isset($context['delagg'])) {
       $dirpath = '..'.$this->properties['path'];
       if (is_file("$dirpath/phpdocagg.pser")) {
@@ -350,12 +350,28 @@ doc: |
   
 /*PhpDoc: methods
 name: makeallagg
-title: function makeallagg() - appelle makeagg() pour chacun des modules de root
+title: "function makeallagg(): void - appelle makeagg() pour chacun des modules de root"
 */
-  function makeallagg() {
+  function makeallagg(): void {
     if ($this->parent)
       return;
     foreach ($this->children['submodules'] as $module)
       $module->makeagg();
+  }
+
+  /*PhpDoc: methods
+  name: store
+  title: "function store(string $filename): void - enregistre la description du module dans le fichier"
+  */
+  function store(string $filename): void {
+    file_put_contents($filename, serialize($this));
+  }
+
+  /*PhpDoc: methods
+  name: read
+  title: "static function read(string $filename): Module - lit la description du module dans le fichier"
+  */
+  static function read(string $filename): Module {
+    return unserialize(file_get_contents($filename));
   }
 };
