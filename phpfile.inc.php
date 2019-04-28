@@ -4,6 +4,8 @@ name:  phpfile.inc.php
 title: phpfile.inc.php - définition des classes PhpFile, FunClassVar, Method, Parameter et Type
 classes:
 journal: |
+  28/4/2019:
+    ajout détection dans PhpFile::verifyInc()  du motif require_once __DIR__.'/../spyc/spyc.inc.php';
   9/8/2017:
     ajout de la possibilité de documenter une propriété privée d'une classe
   19/4/2017:
@@ -50,8 +52,8 @@ title: private function filepathFromTokens(array $tokens, integer $indice) - ren
 doc: |
   Utilisée par verifyInc()
 */
-  private function filepathFromTokens(array $tokens, $indice) {
-/*
+  private function filepathFromTokens(array $tokens, int $indice) {
+    /*
     echo "<pre>token T_REQUIRE ou T_REQUIRE_ONCE détecté:\n";
     for($j=1;$j<10;$j++) {
       if (is_array($tokens[$indice+$j]))
@@ -60,36 +62,57 @@ doc: |
         echo "tokens[indice+$j] : ",$tokens[$indice+$j],"\n";
     }
     echo "</pre>\n";
-*/
+    */
     $indice++;
     $token = $tokens[$indice];
-    if (is_array($token) and ($token[0]==T_WHITESPACE)) {
+    if (is_array($token) && ($token[0]==T_WHITESPACE)) {
       $indice++;
       $token = $tokens[$indice];
     }
 
-    if (is_array($token) and ($token[0]==T_CONSTANT_ENCAPSED_STRING)) {
+    if (is_array($token) && ($token[0]==T_CONSTANT_ENCAPSED_STRING)) {
       $name = $tokens[$indice][1];
       $name = substr($name, 1, strlen($name)-2);
-//      echo "name=$name<br>\n";
+      //echo "name=$name<br>\n";
       return $name;
     } elseif (
-// Cas require_once dirname(__FILE__).'/../spyc/spyc.inc.php';
-          (is_array($tokens[$indice]) and ($tokens[$indice][0]==T_STRING) and ($tokens[$indice][1]=='dirname'))
-          and (!is_array($tokens[$indice+1]) and ($tokens[$indice+1]=='('))
-          and (is_array($tokens[$indice+2]) and ($tokens[$indice+2][0]==T_FILE) and ($tokens[$indice+2][1]=='__FILE__'))
-          and (!is_array($tokens[$indice+3]) and ($tokens[$indice+3]==')'))
-          and (!is_array($tokens[$indice+4]) and ($tokens[$indice+4]=='.'))
-          and (is_array($tokens[$indice+5]) and ($tokens[$indice+5][0]==T_CONSTANT_ENCAPSED_STRING))
+    // Cas require_once dirname(__FILE__).'/../spyc/spyc.inc.php';
+          (is_array($tokens[$indice]) && ($tokens[$indice][0]==T_STRING) && ($tokens[$indice][1]=='dirname'))
+          && (!is_array($tokens[$indice+1]) && ($tokens[$indice+1]=='('))
+          && (is_array($tokens[$indice+2]) && ($tokens[$indice+2][0]==T_FILE) && ($tokens[$indice+2][1]=='__FILE__'))
+          && (!is_array($tokens[$indice+3]) && ($tokens[$indice+3]==')'))
+          && (!is_array($tokens[$indice+4]) && ($tokens[$indice+4]=='.'))
+          && (is_array($tokens[$indice+5]) && ($tokens[$indice+5][0]==T_CONSTANT_ENCAPSED_STRING))
         )
     {
-//      echo "Cas en cours ligne ".__LINE__."<br>\n";
+      // echo "Cas en cours ligne ".__LINE__."<br>\n";
       $name = $tokens[$indice+5][1];
       $name = substr($name, 2, strlen($name)-3);
-//      echo "name=$name<br>\n";
+      // echo "name=$name<br>\n";
+      return $name;
+    } elseif (
+    // Cas require_once __DIR__.'/../spyc/spyc.inc.php';
+             (is_array($tokens[$indice]) && ($tokens[$indice][0]==T_DIR) && ($tokens[$indice][1]=='__DIR__'))
+          && (!is_array($tokens[$indice+1]) && ($tokens[$indice+1]=='.'))
+          && (is_array($tokens[$indice+2]) && ($tokens[$indice+2][0]==T_CONSTANT_ENCAPSED_STRING))
+        )
+    {
+      // echo "Cas en cours ligne ".__LINE__."<br>\n";
+      $name = $tokens[$indice+2][1];
+      $name = substr($name, 2, strlen($name)-3);
+      //echo "name=$name<br>\n";
       return $name;
     } else {
-//      echo "<pre>";
+      //echo "<pre>";
+      echo "<pre>token T_REQUIRE ou T_REQUIRE_ONCE détecté:\n";
+      $indice--;
+      for($j=1;$j<10;$j++) {
+        if (is_array($tokens[$indice+$j]))
+          echo "tokens[indice+$j] : ",token_name($tokens[$indice+$j][0])," (",$tokens[$indice+$j][1],")\n";
+        else
+          echo "tokens[indice+$j] : ",$tokens[$indice+$j],"\n";
+      }
+      echo "</pre>\n";
       throw new Exception("Cas non prévu ligne ".__LINE__." du fichier ".__FILE__);
     }
   }
@@ -110,11 +133,11 @@ doc: |
       return;
     }
     
-// fabrication de la liste des fichiers inclus issue du code Php
+    // fabrication de la liste des fichiers inclus issue du code Php
     $incfiles = []; // liste des fichiers inclus trouvés dans le code Php
     $tokens = @token_get_all(file_get_contents($path));
-    foreach ($tokens as $i => $token)
-      if (is_array($token) and (($token[0]==T_REQUIRE) or ($token[0]==T_REQUIRE_ONCE)))
+    foreach ($tokens as $i => $token) {
+      if (is_array($token) && in_array($token[0], [T_REQUIRE,T_REQUIRE_ONCE])) {
         try {
           $filename = $this->filepathFromTokens($tokens, $i);
           if (!in_array($filename, $incfiles))
@@ -122,17 +145,19 @@ doc: |
         } catch(Exception $e) {
           echo "<b>Erreur: ",$e->getMessage(),"</b><br>\n";
         }
-//    echo "<pre>incfiles="; print_r($incfiles); echo "</pre>"; //die();
+      }
+    }
+    //echo "<pre>incfiles="; print_r($incfiles); echo "</pre>"; //die();
       
-//    $this->dump();
-// liste des fichiers inclus issue de PhpDoc
+    //$this->dump();
+    // liste des fichiers inclus issue de PhpDoc
     $includes = [];
     if (isset($this->solvedLinks['includes']))
       foreach ($this->links['includes'] as $include)
         $includes[$include] = 1;
-//    echo "<pre>includes="; print_r($includes); echo "</pre>";
+    //echo "<pre>includes="; print_r($includes); echo "</pre>";
       
-// Confrontation de la liste issue du code Php avec la liste issue de PhpDoc
+    // Confrontation de la liste issue du code Php avec la liste issue de PhpDoc
     foreach ($incfiles as $incfile) {
       if (isset($includes[$incfile])) {
         echo "$incfile OK<br>\n";

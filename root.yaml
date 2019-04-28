@@ -11,6 +11,7 @@ journal: |
   26-27/11/2016:
     première version
 submodules:
+  - /vendor
   - /phplib
 #  - /phpdoc1
   - /phpdoc

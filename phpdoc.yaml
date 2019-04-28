@@ -12,7 +12,9 @@ doc: |
     c) effectue des vérifications de cohérence entre les déclarations de la doc et le contenu effectif des répertoires et du code Php
 
   Le code de PhpDoc est réparti dans différentes classes correspondant à chacun des concepts définis plus une classe générique
-  appellée Elt qui implémente les méthodes génériques aux différentes autres classes.
+  appelée Elt qui implémente les méthodes génériques aux différentes autres classes.
+  
+  Source publié sur: https://github.com/benoitdavidfr/phpdoc
   
 journal: |
   27/4/2019:
