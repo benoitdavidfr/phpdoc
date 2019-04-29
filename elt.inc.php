@@ -27,7 +27,7 @@ doc: |
   La classe Elt porte une grande partie des traitements de PhpDoc
 */
 abstract class Elt {
-// Les titres utilisés dans show() définis pour chaque catégorie d'enfant et de lien
+  // Les titres utilisés dans show() définis pour chaque catégorie d'enfant et de lien
   static $titles = [
     'childCategories' => [
       'synchros' => "Mécanismes de synchronisation",
@@ -73,6 +73,14 @@ abstract class Elt {
   protected $solvedLinks=[]; // [ category => [ num => Elt ] ]
   protected $reverseLinks=[]; // [ category => [ num => Elt ] ]
   protected $fileNotFound=false; // true ssi le fichier n'existe pas
+  
+  function parent() { return $this->parent; }
+  // Renvoie les enfants pour une catégorie donnée
+  function children(string $cat): array { return isset($this->children[$cat]) ? $this->children[$cat] : []; }
+  // Renvoie les liens directs pour une catégorie donnée
+  function links(string $cat): array { return isset($this->solvedLinks[$cat]) ? $this->solvedLinks[$cat] : []; }
+  // Renvoie les liens inverses pour une catégorie donnée
+  function reverseLinks(string $cat): array { return isset($this->reverseLinks[$cat]) ? $this->reverseLinks[$cat] : []; }
   
 /*PhpDoc: methods
 name:  name
@@ -151,9 +159,9 @@ doc: |
       
     if (isset($eltType::$structure['childCategories']))
       foreach ($eltType::$structure['childCategories'] as $categoryName=>$class) {
-        if (isset($params[$categoryName]) and $params[$categoryName]) {
-//          echo "Dans Elt::init($eltType), categoryName=$categoryName<br>\n";
-//          var_dump($params[$categoryName]);
+        if (isset($params[$categoryName]) && $params[$categoryName]) {
+          //echo "Dans Elt::init($eltType), categoryName=$categoryName<br>\n";
+          //var_dump($params[$categoryName]);
           foreach ($params[$categoryName] as $num => $child) {
             $childObject = new $class($child, $context);
             if ($childObject->fileNotFound and !$context['verbose'])
@@ -170,9 +178,9 @@ doc: |
       
     if (isset($eltType::$structure['links']))
       foreach ($eltType::$structure['links'] as $categoryName) {
-//        echo "<pre>categoryName=$categoryName, params="; print_r($params); echo "</pre>\n";
+        //echo "<pre>categoryName=$categoryName, params="; print_r($params); echo "</pre>\n";
         if (isset($params[$categoryName]) and $params[$categoryName]) {
-//          echo "Dans Elt::init($eltType), categoryName=$categoryName<br>\n";
+          //echo "Dans Elt::init($eltType), categoryName=$categoryName<br>\n";
           foreach ($params[$categoryName] as $num => $child) {
             $this->links[$categoryName][$num] = $child;
           }
@@ -182,8 +190,8 @@ doc: |
       
     if ($params) {
       echo "Dans Elt::init(eltType=$eltType, name=",$this->name(),") il reste:<br>\n";
-//      echo '<ul><li>',implode('<li>',array_keys($params)),"</ul>\n";
-				echo "<pre>"; print_r($params); echo "</pre>";
+      //echo '<ul><li>',implode('<li>',array_keys($params)),"</ul>\n";
+      echo "<pre>"; print_r($params); echo "</pre>";
     }
   }
     
@@ -206,9 +214,7 @@ doc: |
 name:  globalKey
 title: "function globalKey(): string - calcule la clé globale, cad la clé absolue de l'élément par rapport à la racine"
 */
-  function globalKey(): string {
-    return ($this->parent ? $this->parent->globalKey() .'/' : '').$this->localKey;
-  }
+  function globalKey(): string { return ($this->parent ? $this->parent->globalKey() .'/' : '').$this->localKey; }
   
 /*PhpDoc: methods
 name:  access
@@ -320,11 +326,24 @@ title: "function findChildByName(string $name): ?Elt - retrouve un enfant par so
     return null;
   }
   
+  /*PhpDoc: methods
+  name:  findSubModuleByPath
+  title: "function findSubModuleByPath(string $$path): ?Module - retrouve un sous-module par son chemin"
+  */
+  function findSubModuleByPath(string $path): ?Module {
+    foreach ($this->children['submodules'] as $child) {
+      echo "child's path=",$child->properties['path'],"<br>\n";
+      if ($child->properties['path'] == $path)
+        return $child;
+    }
+    return null;
+  }
+  
 /*PhpDoc: methods
-name:  links
-title: "function links(): void - Affichage des liens, utile en dév."
+name:  showLinks
+title: "function showLinks(): void - Affichage des liens, utile en dév."
 */
-  function links(): void {
+/*function showLinks(): void {
     echo "<li>",$this->title(),"<ul>\n";
     foreach ($this->children as $categoryName => $children)
       foreach ($children as $child)
@@ -334,6 +353,7 @@ title: "function links(): void - Affichage des liens, utile en dév."
         echo "<li><b>link $categoryName</b>: $link\n";
     echo "</ul>\n";
   }
+*/
   
 /*PhpDoc: methods
 name:  links
@@ -405,7 +425,7 @@ name:  listCategories
 title: "function listCategories($level=0, &$categoryNames=[]): array - liste les catégories, utile en dév."
 */
   function listCategories($level=0, &$categoryNames=[]): array {
-//    echo "Elt::listCategories(level=$level) sur $this<br>\n";
+    //echo "Elt::listCategories(level=$level) sur $this<br>\n";
     if (!$categoryNames)
       $categoryNames = [
         'childCategories' => [],

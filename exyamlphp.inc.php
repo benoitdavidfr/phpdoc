@@ -20,10 +20,14 @@ journal: |
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
-// si la première ligne commence par des blancs, supprime ce nbre de blancs dans chaque ligne du texte
+// supprime les lignes initiales vides
+// puis si la première ligne commence par des blancs, supprime ce nbre de blancs dans chaque ligne du texte
 function untab(string $text): string {
-  if (substr($text, 0, 1)<>' ')
+  if (!in_array(substr($text, 0, 1), [' ',"\n","\r"]))
     return $text;
+  // suppression des lignes vides initiales
+  while ((strlen($text)>0) && in_array(substr($text, 0, 1), ["\n","\r"]))
+    $text = substr($text, 1);
   //echo "untab<pre>$text</pre>\n";
   $nbblancs = 0;
   while(substr($text, $nbblancs, 1) == ' ') {
@@ -42,7 +46,7 @@ function untab(string $text): string {
 
 /*PhpDoc: functions
 name: extractYamlFromPhpFile
-title: function extractYamlFromPhpFile($filepath)
+title: "function extractYamlFromPhpFile($filepath): ?array"
 doc: |
   Extrait d'un fichier Php la documentation PhpDoc en YAML contenue dans des commentaires commencant par /*PhpDoc:
   et retourne la structure Php correspondant à cette documentation.
@@ -52,7 +56,7 @@ doc: |
   Un modificateur peut aussi être ajouté après la chaine définissant le champ
   Retourne null is le fichier n'existe pas
 */
-function extractYamlFromPhpFile(string $filepath) {
+function extractYamlFromPhpFile(string $filepath): ?array {
 //  echo "extractYamlFromPhpFile(filepath=$filepath)<br>\n";
   if (!is_file($filepath))
     return null;
@@ -77,12 +81,12 @@ function extractYamlFromPhpFile(string $filepath) {
       }
       $yamlText = substr($comment, $start, strlen($comment)-$start-2);
       $yamlText = untab($yamlText);
-      //echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
+      //echo "<b>texte Yaml extrait</b><pre>**\n$yamlText\n**\n</pre>\n";
       try {
         $yaml = Yaml::parse($yamlText);
       } catch (ParseException $e) {
         echo "Erreur Yaml dans$filepath : ",$e->getMessage(),"<br>\n";
-        echo "<pre>$yamlText</pre>\n";
+        echo "<pre>**\n$yamlText**\n</pre>\n";
         throw new Exception("Erreur de lecture du text yaml dans extractYamlFromPhp()");
       }
       if (isset($yaml['title']) && $modif)
@@ -91,7 +95,7 @@ function extractYamlFromPhpFile(string $filepath) {
     }
   }
   if (!$yamls)
-    return '';
+    return null;
   //echo "<pre>yamls avant agrégation="; print_r($yamls);  echo "</pre>\n";
   while (count($yamls) > 1) {
     list($name,$yaml) = array_pop($yamls);

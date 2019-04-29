@@ -175,7 +175,7 @@ doc: |
 
 /*PhpDoc: classes
 name:  class FunClassVar
-title: class FunClassVar extends InFile - classe correspondant aux functions, aux classes et aux variables
+title: class FunClassVar extends InFile - classe correspondant aux fonctions, aux classes et aux variables
 */
 class FunClassVar extends InFile {
   static $structure = [
@@ -200,6 +200,15 @@ class FunClassVar extends InFile {
       'updates', // met à jour une table
     ],
   ];
+  
+  function show(): void {
+    parent::show();
+    $file = $this->parent;
+    $module = $file->parent;
+    $path = $module->name().'/'.$file->name();
+    echo "<a href='search/?file=$path&amp;function=",$this->name(),"'>",
+        "Rechercher cette fonction dans le code</a><br>\n";
+  }
 };
 
 /*PhpDoc: classes
@@ -224,6 +233,16 @@ class Method extends InFile {
       'updates', // met à jour une table
     ],
   ];
+  
+  function show(): void {
+    parent::show();
+    $class = $this->parent;
+    $file = $class->parent;
+    $module = $file->parent;
+    $path = $module->name().'/'.$file->name();
+    echo "<a href='search/?file=$path&amp;class=",$class->name(),"&amp;method=",$this->name(),"'>",
+        "Rechercher cette méthode dans le code</a><br>\n";
+  }
 };
 
 /*PhpDoc: classes

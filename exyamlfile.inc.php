@@ -49,11 +49,12 @@ function extractYamlFromYamlFile(string $filepath) {
 
 /*PhpDoc: functions
 name: extractYamlFromFile
-title: function extractYamlFromFile(string $filepath) - Extrait une doc PhpDoc d'un fichier
+title: "function extractYamlFromFile(string $filepath): ?array - Extrait une doc PhpDoc d'un fichier"
 doc: |
   Extrait une doc PhpDoc d'un fichier SQL, HTML, JS ou CSS. L'extension du nom du fichier est utilisé pour détecter le type de fichier.
+  Retourne null en cas d'erreur.
 */
-function extractYamlFromFile(string $filepath) {
+function extractYamlFromFile(string $filepath): ?array {
 //  echo "function extractYamlFromFile($filepath)<br>\n";
   if (!is_file($filepath))
     return null;
@@ -75,19 +76,20 @@ function extractYamlFromFile(string $filepath) {
   $start = strpos($filecontents, $seps['start'].'PhpDoc:');
   if ($start === false) {
     //echo "start === false<br>\n";
-    return '';
+    return null;
   }
   //echo "start=$start<br>\n";
   $start += strlen($seps['start'].'PhpDoc:');
   $end = strpos($filecontents, $seps['end'], $start);
   $yamlText = substr($filecontents, $start, $end-$start);
   //echo "start=$start, end=$end<br>\n";
+  $yamlText = untab($yamlText);
   //echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
   try {
     $yaml = Yaml::parse($yamlText);
   }
   catch(ParseException $e) {
-    echo "Erreur de lecture du text yaml:</b><pre>\n$yamlText\n</pre><pre>\n";
+    echo "Erreur de lecture du text yaml:</b><pre>**\n$yamlText\n**\n</pre><pre>\n";
     throw new Exception("Erreur de lecture du text yaml dans extractYamlFromFile($filepath) : ".$e->getMessage());
   }
   $yamls[0] = ['', $yaml];
@@ -103,6 +105,7 @@ function extractYamlFromFile(string $filepath) {
     $end = strpos($filecontents, $seps['end'], $start);
     $yamlText = substr($filecontents, $start, $end-$start);
     //echo "<b>texte Yaml extrait</b><pre>\n$yamlText\n</pre>\n";
+    $yamlText = untab($yamlText);
     try {
       $yaml = Yaml::parse($yamlText);
     }

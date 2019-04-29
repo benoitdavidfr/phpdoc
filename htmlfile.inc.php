@@ -18,10 +18,10 @@ methods:
 doc: Factorise les méthodes s'appliquant aux fichiers
 */
 abstract class File extends Elt {
-/*PhpDoc: methods
-name:  __construct
-title: function __construct($param, array $context) - crée un objet File à partir de param et du contexte
-*/
+  /*PhpDoc: methods
+  name:  __construct
+  title: function __construct($param, array $context) - crée un objet File à partir de param et du contexte
+  */
   function __construct($param, array $context) {
     if (isset($_GET['debug']) and $_GET['debug']) {
       $eltType = get_class($this);
@@ -39,11 +39,12 @@ title: function __construct($param, array $context) - crée un objet File à par
     $this->init($param, $context);
   }
   
-/*PhpDoc: methods
-name:  yaml
-title: "function yaml(string $dirpath): array - fabrique sous la forme d'un tableau Php le Yaml correspondant à un fichier"
-*/
-  function yaml(string $dirpath): array {
+  /*PhpDoc: methods
+  name:  yaml
+  title: "function yaml(string $dirpath): ?array - fabrique sous la forme d'un tableau Php le Yaml correspondant à un fichier"
+  doc: Retourne null en cas d'erreur
+  */
+  function yaml(string $dirpath): ?array {
     //echo "File::yaml(dirpath=$dirpath)<br>\n";
     $name = $this->properties['name'];
     //echo "dirpath=$dirpath<br>\n";
@@ -54,11 +55,17 @@ title: "function yaml(string $dirpath): array - fabrique sous la forme d'un tabl
     return $yaml;
   }
   
-/*PhpDoc: methods
-name:  file
-title: "function file(): File - Renvoie le fichier auquel appartient l'élément, pour un file renvoie l'objet lui-même"
-*/
+  /*PhpDoc: methods
+  name:  file
+  title: "function file(): File - Renvoie le fichier auquel appartient l'élément, pour un file renvoie l'objet lui-même"
+  */
   function file(): File { return $this; }
+  
+  /*PhpDoc: methods
+  name:  path
+  title: "function path(): string - Renvoie le chemin du fichier"
+  */
+  function path(): string { return $this->parent()->name().'/'.$this->name(); }
 };
 
 /*PhpDoc: classes

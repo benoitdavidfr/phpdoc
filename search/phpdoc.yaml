@@ -1,0 +1,4 @@
+title: Search - trouve les lignes de code Php appelant une méthode ou une fonction définie en paramètre
+path: /phpdoc/search
+phpScripts:
+  - /phpdoc/search/index.php

@@ -14,6 +14,23 @@ doc: |
   Le code de PhpDoc est réparti dans différentes classes correspondant à chacun des concepts définis plus une classe générique
   appelée Elt qui implémente les méthodes génériques aux différentes autres classes.
   
+  Hiérarchie des classes et fichier dans laquelle chaque classe est définie:
+    - Elt (abstract) - un élément générique de la doc - elt.inc.php
+      +- Module - module ou sous-module - module.inc.php
+      +- File (abstract) - sur-classe de HtmlFile, PhpFile et SqlFile - htmlfile.inc.php
+         +- PhpFile - fichiers Php et fichiers inclus .inc.php - phpfile.inc.php
+         +- SqlFile - fichier .sql - sql.inc.php
+      +- InFile (abstract) - sur-classe des éléments qui ne correspondent pas à des fichiers - htmlfile.inc.php
+         +- FunClassVar - fonction, classe ou variable - phpfile.inc.php
+         +- Method - méthodes - phpfile.inc.php
+         +- Parameter - paramètres d'une fonction ou d'une méthode - phpfile.inc.php
+         +- Screen - écrans - htmlfile.inc.php
+         +- SqlDB - Base SQL - sql.inc.php
+         +- SqlTable - Table SQL - sql.inc.php
+         +- Column - Colonne d'une table SQL - sql.inc.php
+         +- Synchro - infos de synchronisation - synchro.inc.php
+    - Type - définition d'un type - phpfile.inc.php
+  
   Source publié sur: https://github.com/benoitdavidfr/phpdoc
   
 journal: |
@@ -44,6 +61,8 @@ journal: |
     Récriture de phpdoc dans un souci de simplification du code notamment pour l'utiliser dans un contexte où les ressources
     ne sont pas toutes présentes
 
+submodules:
+  - /phpdoc/search
 phpScripts:
   - /phpdoc/index.php
   - /phpdoc/phpdoc.php

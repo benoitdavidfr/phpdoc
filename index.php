@@ -34,6 +34,8 @@ $context = [
   'verbose' => ($_SERVER['SERVER_NAME']<>'geobases.alwaysdata.net'), // verbose est vrai sauf sur geobases.alwaysdata.net
 ];
 
+echo "<html><head><meta charset='UTF-8'><title>phpdoc2</title></head><body>\n";
+
 /*PhpDoc: functions
 name:  phpdoc
 title: "function phpdoc(array $context): void - Permet d'effectuer une relecture des fichiers phpdoc dans certains cas"

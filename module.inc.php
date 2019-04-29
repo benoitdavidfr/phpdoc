@@ -166,7 +166,7 @@ doc: en plus de l'affichage générique, sur un module des actions sont proposé
 */
   function show(): void {
     parent::show();
-    echo "<a href='?action=notdocFiles&amp;key=",urlencode($this->globalKey()),
+    echo "<a href='?action=undocumentedFiles&amp;key=",urlencode($this->globalKey()),
          "'>Liste des fichiers non documentés</a><br>";
     echo "<a href='?action=verifyInc&amp;key=",urlencode($this->globalKey()),
          "'>Vérification des listes d'inclusions</a><br>";
@@ -201,9 +201,9 @@ title: "function listfiles(): void - affiche la liste des fichiers"
   
 /*PhpDoc: methods
 name: notdocFiles
-title: function ToDELETEnotdocFiles() - Compare les fichiers définis et les fichiers existants
+title: function undocumentedFiles() - Compare les fichiers définis et les fichiers existants
 */
-  function ToDELETEnotdocFiles() {
+  function undocumentedFiles() {
     $dir = $this->properties['path'];
     if (!is_dir('..'.$dir)) {
       echo "Ce module ne correspond pas à un répertoire<br>\n";
@@ -373,5 +373,21 @@ title: "function makeallagg(): void - appelle makeagg() pour chacun des modules 
   */
   static function read(string $filename): Module {
     return unserialize(file_get_contents($filename));
+  }
+
+  static function getByPath(string $path, Module $parent=null): Module {
+    //echo "Module::getByPath($path, $parent)<br>\n";
+    if ($parent == null)
+      $parent = Module::read(__DIR__.'/root.pser');
+    $name = $path[0];
+    foreach ($parent->children['submodules'] as $submodule) {
+      //echo "name=",$submodule->name(),"<br>\n";
+      $smoduleName = $submodule->name();
+      if ($path == $smoduleName)
+        return $submodule;
+      elseif (substr($path, 0, strlen($smoduleName)) == $smoduleName) {
+        return self::getByPath($path, $submodule);
+      }
+    }
   }
 };
