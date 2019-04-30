@@ -57,7 +57,7 @@ doc: |
   Retourne null is le fichier n'existe pas
 */
 function extractYamlFromPhpFile(string $filepath): ?array {
-//  echo "extractYamlFromPhpFile(filepath=$filepath)<br>\n";
+  //echo "extractYamlFromPhpFile(filepath=$filepath)<br>\n";
   if (!is_file($filepath))
     return null;
   $tokens = @token_get_all(file_get_contents($filepath));

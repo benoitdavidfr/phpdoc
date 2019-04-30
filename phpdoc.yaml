@@ -63,6 +63,7 @@ journal: |
 
 submodules:
   - /phpdoc/search
+  - /phpdoc/testsearch
 phpScripts:
   - /phpdoc/index.php
   - /phpdoc/phpdoc.php

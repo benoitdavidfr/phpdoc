@@ -1,0 +1,7 @@
+title: TestSearch
+path: /phpdoc/testsearch
+phpScripts:
+  - /phpdoc/testsearch/index.php
+phpIncludes:
+  - /phpdoc/testsearch/lib.inc.php
+  - /phpdoc/testsearch/lib2.inc.php

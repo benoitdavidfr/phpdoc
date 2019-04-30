@@ -28,6 +28,8 @@ doc: |
 
   Utilise les liens d'inclusion de fichiers pour restreindre l'analyse des sources Php
 journal: |
+  30/4/2019:
+    ajout détection de new
   29/4/2019:
     première version
 */
@@ -248,6 +250,10 @@ foreach($filepaths as $path) {
           printf('%3d: %s%s', $line, str_replace(['<'],['&lt;'],getLineOfFile($line, $phpsource)),"\n");
         }
       }
+      elseif (($_GET['method']=='__construct') && is_array($token) && ($token[0]==T_NEW)) {
+        $line = $token[2];
+        printf('%3d: %s%s', $line, str_replace(['<'],['&lt;'],getLineOfFile($line, $phpsource)),"\n");
+      }
     }
   }
   else { // function
@@ -271,6 +277,10 @@ foreach($filepaths as $path) {
 }
 
 die("Fin Ok");
-// find . -type f -name "*.php" -exec grep -il 'pattern' {} \;
-// Pour trouver les fichiers incluant un fichier donné
-// find .. -type f -name "*.php" -exec grep -il '/gegeom/gegeom.inc.php' {} \;
+/*
+find . -type f -name "*.php" -exec grep -il 'pattern' {} \;
+Pour trouver les fichiers incluant un fichier donné
+find .. -type f -name "*.php" -exec grep -il '/gegeom/gegeom.inc.php' {} \;
+find .. -type f -name "*.php" -exec grep -il 'require' {} \;
+find .. -type f -name "*.php" -exec grep -i 'require' {} \;
+*/
