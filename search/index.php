@@ -1,5 +1,5 @@
 <?php
-/*PhpDoc:
+{/*PhpDoc:
 name:  index.php
 title: search/index.php - trouve les lignes de code Php appelant la méthode ou fonction définie en paramètre
 includes:
@@ -32,7 +32,7 @@ journal: |
     ajout détection de new
   29/4/2019:
     première version
-*/
+*/}
 require_once __DIR__.'/../../vendor/autoload.php';
 require_once __DIR__.'/../elt.inc.php';
 require_once __DIR__.'/../module.inc.php';
@@ -120,14 +120,15 @@ if (!is_file(__DIR__."/../..$_GET[file]")) { // si module alors choix d'un sous-
   die();
 }
 
-if (isset($_GET['action']) && ($_GET['action']=='token')) { // affichage des tokens
-  echo "<h2>$_GET[file]</h2>\n";
+// affiche un fichier Php par la liste de ses tokens
+function showTokens(string $filepath) {
+  echo "<h2>$filepath</h2>\n";
   echo "<table border=1>",
     "<tr bgcolor='#32CD32'><td>S</td><td>Source</td></tr>\n",
     "<tr><td>T</td><td>Token</td></tr>\n",
     "<tr bgcolor='#E6E6FA'><td>L</td><td>Litteral</td></tr>\n",
     "</table>\n";
-  $phpsource = file_get_contents(__DIR__."/../..$_GET[file]");
+  $phpsource = file_get_contents(__DIR__."/../..$filepath");
   $tokens = token_get_all($phpsource);
   $line = 1;
   echo "<pre><table border=1>\n";
@@ -145,6 +146,10 @@ if (isset($_GET['action']) && ($_GET['action']=='token')) { // affichage des tok
       echo "<tr bgcolor='#E6E6FA'><td>L</td><td colspan=4>$token</td></tr>\n";
   }
   die("</table></pre>");
+}
+
+if (isset($_GET['action']) && ($_GET['action']=='token')) { // affichage des tokens
+  showTokens($_GET['file']);
 }
 
 if (!(isset($_GET['class']) && isset($_GET['method'])) && !isset($_GET['function'])) { // si fichier

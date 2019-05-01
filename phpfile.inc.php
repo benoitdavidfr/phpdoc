@@ -46,12 +46,12 @@ class PhpFile extends File {
     ],
   ];
   
-/*PhpDoc: methods
-name: verifyInc
-title: private function filepathFromTokens(array $tokens, integer $indice) - renvoie le nom du fichier inclus
-doc: |
-  Utilisée par verifyInc()
-*/
+  /*PhpDoc: methods
+  name: verifyInc
+  title: private function filepathFromTokens(array $tokens, integer $indice) - renvoie le nom du fichier inclus
+  doc: |
+    Utilisée par verifyInc()
+  */
   private function filepathFromTokens(array $tokens, int $indice) {
     /*
     echo "<pre>token T_REQUIRE ou T_REQUIRE_ONCE détecté:\n";
@@ -65,17 +65,19 @@ doc: |
     */
     $indice++;
     $token = $tokens[$indice];
-    if (is_array($token) && ($token[0]==T_WHITESPACE)) {
+    if ((is_array($token) && ($token[0]==T_WHITESPACE)) || (!is_array($token) && ($token=='('))) {
       $indice++;
       $token = $tokens[$indice];
     }
 
+    // Cas require_once '/../spyc/spyc.inc.php';
     if (is_array($token) && ($token[0]==T_CONSTANT_ENCAPSED_STRING)) {
       $name = $tokens[$indice][1];
       $name = substr($name, 1, strlen($name)-2);
       //echo "name=$name<br>\n";
       return $name;
-    } elseif (
+    }
+    /*elseif (
     // Cas require_once dirname(__FILE__).'/../spyc/spyc.inc.php';
           (is_array($tokens[$indice]) && ($tokens[$indice][0]==T_STRING) && ($tokens[$indice][1]=='dirname'))
           && (!is_array($tokens[$indice+1]) && ($tokens[$indice+1]=='('))
@@ -90,7 +92,8 @@ doc: |
       $name = substr($name, 2, strlen($name)-3);
       // echo "name=$name<br>\n";
       return $name;
-    } elseif (
+    }*/
+    elseif (
     // Cas require_once __DIR__.'/../spyc/spyc.inc.php';
              (is_array($tokens[$indice]) && ($tokens[$indice][0]==T_DIR) && ($tokens[$indice][1]=='__DIR__'))
           && (!is_array($tokens[$indice+1]) && ($tokens[$indice+1]=='.'))
@@ -117,17 +120,17 @@ doc: |
     }
   }
   
-/*PhpDoc: methods
-name: verifyInc
-title: function verifyInc(string $dirpath)
-doc: |
-  Vérifie que les fichiers inclus correspondent bien à ceux présents dans le code Php
-  La détection n'est pas parfaite car cela serait trop complexe
-  Notamment les xpath avec /* génèrent des faux débuts de commentaire
-*/
+  /*PhpDoc: methods
+  name: verifyInc
+  title: function verifyInc(string $dirpath)
+  doc: |
+    Vérifie que les fichiers inclus correspondent bien à ceux présents dans le code Php
+    La détection n'est pas parfaite car cela serait trop complexe
+    Notamment les xpath avec /* génèrent des faux débuts de commentaire
+  */
   function verifyInc(string $dirpath) {
-    echo "<h3>$dirpath/",$this->properties['name'],' : ',$this->properties['title'],"</h3>\n";
-    $path = "../$dirpath/".$this->properties['name'];
+    echo "<h3>$dirpath/",$this->name(),' : ',$this->title(),"</h3>\n";
+    $path = "../$dirpath/".$this->name();
     if (!file_exists($path)) {
       echo "Le script ou fichier inclus n'existe pas.<br>\n";
       return;

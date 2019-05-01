@@ -243,10 +243,10 @@ title: function undocumentedFiles() - Compare les fichiers définis et les fichi
         echo "</ul>\n";
   }
   
-/*PhpDoc: methods
-name: verifyInc
-title: "function verifyInc(): void - Vérification de la liste des fichiers inclus pour tous les fichiers Php et inclus du module"
-*/
+  /*PhpDoc: methods
+  name: verifyInc
+  title: "function verifyInc(): void - Vérification de la liste des fichiers inclus pour tous les fichiers Php et inclus du module"
+  */
   function verifyInc(): void {
     $dirpath = $this->properties['path'];
     if (!is_dir('..'.$dirpath)) {
@@ -260,7 +260,7 @@ title: "function verifyInc(): void - Vérification de la liste des fichiers incl
         //'sqlFiles'=>"Fichiers Sql",
       ] as $category=>$title)
       if (isset($this->children[$category])) {
-        echo "<h2>Scripts Php de $dirpath</h2>\n";
+        echo "<h2>$title de $dirpath</h2>\n";
         foreach ($this->children[$category] as $script)
           $script->verifyInc($dirpath);
       }
@@ -372,7 +372,10 @@ title: "function makeallagg(): void - appelle makeagg() pour chacun des modules 
   title: "static function read(string $filename): Module - lit la description du module dans le fichier"
   */
   static function read(string $filename): Module {
-    return unserialize(file_get_contents($filename));
+    if ($contents = file_get_contents($filename))
+      return unserialize($contents);
+    else
+      throw new Exception("ouverture de $filename impossible");
   }
 
   static function getByPath(string $path, Module $parent=null): Module {
