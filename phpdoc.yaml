@@ -68,6 +68,7 @@ phpScripts:
   - /phpdoc/index.php
   - /phpdoc/phpdoc.php
 phpIncludes:
+  - /phpdoc/inc.php
   - /phpdoc/elt.inc.php
   - /phpdoc/module.inc.php
   - /phpdoc/htmlfile.inc.php

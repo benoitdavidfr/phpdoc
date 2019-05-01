@@ -2,17 +2,7 @@
 {/*PhpDoc:
 name:  index.php
 title: search/index.php - trouve les lignes de code Php appelant la méthode ou fonction définie en paramètre
-includes:
-  - ../../vendor/autoload.php
-  - ../root.yaml
-  - ../elt.inc.php
-  - ../module.inc.php
-  - ../htmlfile.inc.php
-  - ../exyamlfile.inc.php
-  - ../phpfile.inc.php
-  - ../exyamlphp.inc.php
-  - ../sql.inc.php
-  - ../synchro.inc.php
+includes: [ ../inc.php, ../root.yaml ]
 functions:
 doc: |
   Prend en paramètres:
@@ -33,15 +23,7 @@ journal: |
   29/4/2019:
     première version
 */}
-require_once __DIR__.'/../../vendor/autoload.php';
-require_once __DIR__.'/../elt.inc.php';
-require_once __DIR__.'/../module.inc.php';
-require_once __DIR__.'/../htmlfile.inc.php';
-require_once __DIR__.'/../exyamlfile.inc.php';
-require_once __DIR__.'/../phpfile.inc.php';
-require_once __DIR__.'/../exyamlphp.inc.php';
-require_once __DIR__.'/../sql.inc.php';
-require_once __DIR__.'/../synchro.inc.php';
+require_once __DIR__.'/../inc.php';
 
 //echo "<pre>_GET="; print_r($_GET); echo "</pre>\n";
 if (!isset($_GET['file'])) { // choix d'un fichier ou d'un module

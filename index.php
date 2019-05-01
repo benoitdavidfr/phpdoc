@@ -2,16 +2,7 @@
 /*PhpDoc:
 name:  index.php
 title: index.php - affichage de la doc PhpDoc à partir du root.pser
-includes:
-  - root.yaml
-  - elt.inc.php
-  - module.inc.php
-  - htmlfile.inc.php
-  - exyamlfile.inc.php
-  - phpfile.inc.php
-  - exyamlphp.inc.php
-  - sql.inc.php
-  - synchro.inc.php
+includes: [ root.yaml, inc.php ]
 functions:
 doc: |
   Récriture de phpdoc dans un souci de simplification du code notamment pour l'utiliser dans un contexte où les ressources
@@ -20,15 +11,7 @@ journal: |
   27/4/2019:
     première version
 */
-require_once __DIR__.'/../vendor/autoload.php';
-require_once __DIR__.'/elt.inc.php';
-require_once __DIR__.'/module.inc.php';
-require_once __DIR__.'/htmlfile.inc.php';
-require_once __DIR__.'/exyamlfile.inc.php';
-require_once __DIR__.'/phpfile.inc.php';
-require_once __DIR__.'/exyamlphp.inc.php';
-require_once __DIR__.'/sql.inc.php';
-require_once __DIR__.'/synchro.inc.php';
+require_once __DIR__.'/inc.php';
 
 $context = [
   'verbose' => ($_SERVER['SERVER_NAME']<>'geobases.alwaysdata.net'), // verbose est vrai sauf sur geobases.alwaysdata.net
