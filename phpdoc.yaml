@@ -67,6 +67,8 @@ submodules:
 phpScripts:
   - /phpdoc/index.php
   - /phpdoc/phpdoc.php
+  - /phpdoc/verifincall.php
+  - /phpdoc/stats.php
 phpIncludes:
   - /phpdoc/inc.php
   - /phpdoc/elt.inc.php

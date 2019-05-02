@@ -1,7 +1,7 @@
 <?php
 /*PhpDoc:
 name:  index.php
-title: index.php - affichage de la doc PhpDoc à partir du root.pser
+title: index.php - affichage de la doc PhpDoc à partir du root.pser + accès par path
 includes: [ root.yaml, inc.php ]
 functions:
 doc: |
@@ -26,6 +26,20 @@ doc: |
   Permet d'effectuer une relecture des fichiers phpdoc lors de la suppression d'un phpdocagg.yaml
 */
 function phpdoc(array $context): void {
+  if (isset($_GET['path'])) { // affichage par path
+    if ($module = Module::getByPath($_GET['path'])) {
+      $mdule->show();
+    }
+    elseif ($module = Module::getByPath(dirname($_GET['path']))) {
+      $file = $module->findChildByName(basename($_GET['path']));
+      $file->show();
+    }
+    else {
+      echo "$_GET[path] non trouvé<br>\n";
+    }
+    die();
+  }
+  
   $action = isset($_GET['action']) ? $_GET['action'] : 'show';
 
   if ($action == 'update') { // actualisation de root.pser à partir de root.yaml 

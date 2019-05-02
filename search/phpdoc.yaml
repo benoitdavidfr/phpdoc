@@ -2,3 +2,5 @@ title: Search - trouve les lignes de code Php appelant une méthode ou une fonct
 path: /phpdoc/search
 phpScripts:
   - /phpdoc/search/index.php
+phpIncludes:
+  - /phpdoc/search/trclosure.inc.php

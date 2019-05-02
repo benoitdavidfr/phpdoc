@@ -2,7 +2,7 @@
 {/*PhpDoc:
 name:  index.php
 title: search/index.php - trouve les lignes de code Php appelant la méthode ou fonction définie en paramètre
-includes: [ ../inc.php, ../root.yaml ]
+includes: [ ../inc.php, trclosure.inc.php, ../root.yaml ]
 functions:
 doc: |
   Prend en paramètres:
@@ -24,6 +24,7 @@ journal: |
     première version
 */}
 require_once __DIR__.'/../inc.php';
+require_once __DIR__.'/trclosure.inc.php';
 
 //echo "<pre>_GET="; print_r($_GET); echo "</pre>\n";
 if (!isset($_GET['file'])) { // choix d'un fichier ou d'un module
@@ -157,44 +158,6 @@ if (!(isset($_GET['class']) && isset($_GET['method'])) && !isset($_GET['function
 $context = [
   'verbose' => ($_SERVER['SERVER_NAME']<>'geobases.alwaysdata.net'), // verbose est vrai sauf sur geobases.alwaysdata.net
 ];
-
-// prend un ensemble de File et renvoie un ensemble de File
-// ajoute par appel récursif les liens, s'arrête quand plus aucun fichier n'est ajouté
-// $linkType vaut 'links' ou 'reverseLinks'
-function transitiveClosure(string $linkType, array $files, string $category='includes'): array {
-  //echo "transitiveClosure(linkType=$linkType)<br>\n";
-  $newFiles = [];
-  foreach ($files as $file) {
-    //echo "file=$file<br>\n";
-    foreach ($file->$linkType($category) as $link) {
-      //echo "link=$link<br>\n";
-      if (!in_array($link, $files) && !in_array($link, $newFiles))
-        $newFiles[] = $link;
-    }
-  }
-  if (!count($newFiles))
-    return $files;
-  else
-    return transitiveClosure($linkType, array_merge($files, $newFiles), $category);
-}
-
-// retourne les chemins du fichier passé en paramètre
-// + de tous les fichiers incluant récursivement ce fichier
-// + de tous les fichiers inclus récursivement dans ces fichiers
-function filepathsOfTC(File $file): array {
-  $filepaths = [];
-  foreach (transitiveClosure('links', transitiveClosure('reverseLinks', [$file])) as $f) {
-    $filepaths[] = $f->path();
-  }
-  return $filepaths;
-}
-
-// extrait une ligne du code source
-function getLineOfFile(int $line, string $fileContents): string {
-  $tab = explode("\n", $fileContents);
-  //print_r($tab);
-  return $tab[$line-1];
-}
 
 echo "<html><head><meta charset='UTF-8'><title>search</title></head><body>\n";
 

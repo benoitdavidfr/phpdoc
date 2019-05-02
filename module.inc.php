@@ -378,11 +378,13 @@ title: "function makeallagg(): void - appelle makeagg() pour chacun des modules 
       throw new Exception("ouverture de $filename impossible");
   }
 
-  static function getByPath(string $path, Module $parent=null): Module {
+  static function getByPath(string $path, Module $parent=null): ?Module {
     //echo "Module::getByPath($path, $parent)<br>\n";
     if ($parent == null)
       $parent = Module::read(__DIR__.'/root.pser');
     $name = $path[0];
+    if (!isset($parent->children['submodules']))
+      return null;
     foreach ($parent->children['submodules'] as $submodule) {
       //echo "name=",$submodule->name(),"<br>\n";
       $smoduleName = $submodule->name();
