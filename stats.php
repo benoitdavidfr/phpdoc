@@ -58,6 +58,13 @@ class Stats {
     }
   }
   
+  function showFiles() {
+    ksort($this->nbLinesPerFile);
+    header('Content-type: text/plain');
+    foreach (array_keys($this->nbLinesPerFile) as $path)
+      echo "$path\n";
+  }
+  
   function showNbImpactedLines() {
     arsort($this->nbImpactedLines);
     echo "<table border=1>\n";
@@ -77,6 +84,13 @@ class Stats {
     echo "</table>\n";
   }
 };
+
+if (0) { // listage des fichiers php
+  $stats = new Stats(Module::read(__DIR__.'/root.pser'));
+  $stats->calcNbLinesPerFile(); // calcul de $nbLinesPerFile
+  $stats->showFiles();
+  die();
+}
 
 if (!isset($_GET['file'])) {
   $stats = new Stats(Module::read(__DIR__.'/root.pser'));

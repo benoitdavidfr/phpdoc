@@ -17,6 +17,10 @@ doc: |
   ou aucun et dans ce cas liste les modules et fichiers à partir de la racine
 
   Utilise les liens d'inclusion de fichiers pour restreindre l'analyse des sources Php
+  
+  Les noms des méthodes peut être identiques entre classes.
+  Il serait intéressant d'effectuer des recherches sur les noms de classe.
+  On pourrait considérer des groupes de classes qui s'utilisent ensemble.
 journal: |
   30/4/2019:
     ajout détection de new
@@ -227,10 +231,3 @@ foreach($filepaths as $path) {
 }
 
 die("Fin Ok");
-/*
-find . -type f -name "*.php" -exec grep -il 'pattern' {} \;
-Pour trouver les fichiers incluant un fichier donné
-find .. -type f -name "*.php" -exec grep -il '/gegeom/gegeom.inc.php' {} \;
-find .. -type f -name "*.php" -exec grep -il 'require' {} \;
-find .. -type f -name "*.php" -exec grep -i 'require' {} \;
-*/

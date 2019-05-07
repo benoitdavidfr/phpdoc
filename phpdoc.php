@@ -43,7 +43,7 @@ function phpdoc(array $context): void {
 
   $root = new Module(Elt::read_yaml(__DIR__.'/root.yaml'), $context);
   //echo "<pre>root="; print_r($root);
-  $root->solveLinks();
+  $root->solveLinks($root);
   $root->store(__DIR__.'/root.pser');
   if (isset($_GET['action'])) {
     $action = $_GET['action'];

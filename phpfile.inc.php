@@ -39,6 +39,7 @@ class PhpFile extends File {
     ],
     'links'=>[
       'includes',// fichiers Php inclus
+      'forks',   // code dupliqué
       'uses',    // utilisation d'une fonction, d'une classe, d'une méthode ou d'une variable
       'hrefs',   // hrefs définis dans le Html de sortie
       'selects', // tables consultées

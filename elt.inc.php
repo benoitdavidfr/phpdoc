@@ -6,6 +6,11 @@ classes:
 doc: |
   La classe Elt porte une grande partie des traitements de PhpDoc
 journal: |
+  7/5/2019:
+    - ajout des liens requires et forks
+    - ajout possibilité de retouver un sous-module par son nom défini comme le basename du path dans findChildByName()
+    - ajout possibilité de définir des chemins absolus pour les liens
+    - ajout possibilité de définir un lien qui pointe vers un module
   27/4/2019:
     remplacement de Spyc par le module Yaml de Symfony
   9/8/2017:
@@ -49,6 +54,8 @@ abstract class Elt {
       'columns' => "Colonnes/Champs",
     ],
     'links' => [
+      'requires' => "Elts externes requis (requires)",
+      'forks' => "Forks",
       'includes' => "Inclut les fichiers",
       'uses' => "Utilise",
       'hrefs' => "Référence",
@@ -57,8 +64,10 @@ abstract class Elt {
       'updates' => "Met à jour",
     ],
     'reverseLinks' => [
+      'requires' => "Requis par (requires)",
+      'forks' => "Forked par",
       'includes' => "Inclus dans",
-      'uses' => "Utilisé par",
+      'uses' => "Utilisé par (uses)",
       'hrefs' => "Référencé par",
       'database' => "Contient",
       'selects' => "Est consulté par",
@@ -112,8 +121,8 @@ abstract class Elt {
     Si le fichier est encodé en ISO Latin1 au lieu de UTF-8 une alerte est affichée
   */
   static function read_yaml(string $filename): ?array {
-		if (!is_file($filename))
-			return null;
+    if (!is_file($filename))
+      return null;
     if (!($filecontents = file_get_contents($filename)))
       return null;
     try {
@@ -141,13 +150,9 @@ abstract class Elt {
       trouvé, alors les sous-objets ne sont pas intégrés dans l'arbre
   */
   function init(array $params, array $context): void {
-    if (!is_array($params)) {
-      echo "<pre>";
-      throw new Exception("Erreur dans Elt::init() : params n'est pas un tableau");
-    }
     $eltType = get_class($this);
-    if (isset($eltType::$structure['properties']))
-      foreach ($eltType::$structure['properties'] as $prop=>$type) {
+    if (isset($eltType::$structure['properties'])) {
+      foreach ($eltType::$structure['properties'] as $prop => $type) {
         if (isset($params[$prop])) {
           if (in_array($type,['string','text']))
             $this->properties[$prop] = $params[$prop];
@@ -156,15 +161,15 @@ abstract class Elt {
         }
         unset($params[$prop]);
       }
-      
-    if (isset($eltType::$structure['childCategories']))
-      foreach ($eltType::$structure['childCategories'] as $categoryName=>$class) {
+    }
+    if (isset($eltType::$structure['childCategories'])) {
+      foreach ($eltType::$structure['childCategories'] as $categoryName => $class) {
         if (isset($params[$categoryName]) && $params[$categoryName]) {
           //echo "Dans Elt::init($eltType), categoryName=$categoryName<br>\n";
           //var_dump($params[$categoryName]);
           foreach ($params[$categoryName] as $num => $child) {
             $childObject = new $class($child, $context);
-            if ($childObject->fileNotFound and !$context['verbose'])
+            if ($childObject->fileNotFound && !$context['verbose'])
               unset($childObject);
             else {
               $childObject->setParent($this);
@@ -175,11 +180,11 @@ abstract class Elt {
         }
         unset($params[$categoryName]);
       }
-      
+    }
     if (isset($eltType::$structure['links']))
       foreach ($eltType::$structure['links'] as $categoryName) {
         //echo "<pre>categoryName=$categoryName, params="; print_r($params); echo "</pre>\n";
-        if (isset($params[$categoryName]) and $params[$categoryName]) {
+        if (isset($params[$categoryName]) && $params[$categoryName]) {
           //echo "Dans Elt::init($eltType), categoryName=$categoryName<br>\n";
           foreach ($params[$categoryName] as $num => $child) {
             $this->links[$categoryName][$num] = $child;
@@ -216,6 +221,8 @@ abstract class Elt {
   */
   function globalKey(): string { return ($this->parent ? $this->parent->globalKey() .'/' : '').$this->localKey; }
   
+  function path(): string { return $this->parent->path().'!'.$this->name(); }
+  
   /*PhpDoc: methods
   name:  access
   title: "function access($key): Elt - implémente la navigation dans l'arbre au moyen des clés"
@@ -239,6 +246,38 @@ abstract class Elt {
     Utilisée principalement pour le déverminage
   */
   function __toString(): string { return get_class($this).': '.$this->name(); }
+  
+  /*PhpDoc: methods
+  name:  asArray
+  title: "function asArray(): array - représentation array"
+  */
+  function asArray(): array {
+    $doc = $this->properties;
+
+    foreach ($this->children as $categoryName => $children) {
+      foreach ($children as $no => $child) {
+        if (get_class($child)=='Module')
+          $name = $child->name();
+        elseif (isset($child->properties['name']))
+          $name = $child->properties['name'];
+        else
+          $name = "child$no";
+        $doc[$categoryName][$name] = $child->asArray();
+      }
+    }
+    
+    foreach ($this->solvedLinks as $categoryName => $solvedLinks) {
+      foreach ($solvedLinks as $no => $link) {
+        $doc['links'][$categoryName][$link->path()] = $link->title();
+      }
+    }
+    
+    foreach ($this->reverseLinks as $categoryName => $reverseLinks) {
+      foreach ($reverseLinks as $link)
+        $doc['reverseLinks'][$categoryName][$link->path()] = $link->title();
+    }
+    return $doc;
+  }
   
   /*PhpDoc: methods
   name:  show
@@ -318,11 +357,18 @@ abstract class Elt {
   title: "function findChildByName(string $name): ?Elt - retrouve un enfant par son nom"
   */
   function findChildByName(string $name): ?Elt {
-    foreach ($this->children as $categoryName => $children)
-      if ($categoryName<>'submodules')
-        foreach ($children as $child)
-          if ($child->properties['name']==$name)
+    foreach ($this->children as $categoryName => $children) {
+      foreach ($children as $child) {
+        if ($categoryName <> 'submodules') {
+          if ($child->properties['name'] == $name)
             return $child;
+        }
+        else { // $categoryName == 'submodules'
+          if (basename($child->properties['path']) == $name)
+            return $child;
+        }
+      }
+    }
     return null;
   }
   
@@ -382,13 +428,14 @@ abstract class Elt {
   
   /*PhpDoc: methods
   name:  solveLink
-  title: "function solveLink(string $categoryName, string $link): Elt - Trouve l'objet correspondant au lien"
+  title: "function solveLink(Module $root, string $categoryName, string $link): Elt - Trouve l'objet correspondant au lien"
+  doc: Méthode redéfinie pour Module
   */
-  function solveLink(string $categoryName, string $link): Elt {
-    //$eltType = get_class($this);
-    //echo "<li>solveLink(eltType=$eltType,categoryName=$categoryName,link=$link)\n";
+  function solveLink(Module $root, string $categoryName, string $link): Elt {
+    $eltType = get_class($this);
+    //echo "<li>Elt::solveLink(eltType=$eltType,categoryName=$categoryName,link=$link)\n";
     if (strncmp($link,'?',1)<>0) {
-      return $this->module()->solveLink($categoryName, $link);
+      return $this->module()->solveLink($root, $categoryName, $link);
     }
     else {
       if (!($child = $this->file()->findChildByName(substr($link,1))))
@@ -401,11 +448,11 @@ abstract class Elt {
   name:  solveLinks
   title: "function solveLinks(): void - résoud les liens, cad traduit le string en objet"
   */
-  function solveLinks(): void {
-    foreach ($this->links as $categoryName => $links)
-      foreach ($links as $link)
+  function solveLinks(Module $root): void {
+    foreach ($this->links as $categoryName => $links) {
+      foreach ($links as $link) {
         try {
-          $solveLink = $this->solveLink($categoryName, $link);
+          $solveLink = $this->solveLink($root, $categoryName, $link);
           $this->solvedLinks[$categoryName][] = $solveLink;
           $solveLink->reverseLinks[$categoryName][] = $this;
         } catch (Exception $e) {
@@ -413,10 +460,13 @@ abstract class Elt {
           echo "&nbsp;&nbsp;&nbsp;dans <a href='?action=show&amp;key=",urlencode($this->globalKey()),"'>",
                $this->title(),"</a><br>\n";
         }
-    foreach ($this->children as $categoryName => $children)
-      foreach ($children as $child) {
-        $child->solveLinks();
       }
+    }
+    foreach ($this->children as $categoryName => $children) {
+      foreach ($children as $child) {
+        $child->solveLinks($root);
+      }
+    }
   }
   
   /*PhpDoc: methods

@@ -15,25 +15,31 @@ doc: |
   appelée Elt qui implémente les méthodes génériques aux différentes autres classes.
   
   Hiérarchie des classes et fichier dans laquelle chaque classe est définie:
-    - Elt (abstract) - un élément générique de la doc - elt.inc.php
+    +- Elt (abstract) - un élément générique de la doc - elt.inc.php
       +- Module - module ou sous-module - module.inc.php
       +- File (abstract) - sur-classe de HtmlFile, PhpFile et SqlFile - htmlfile.inc.php
-         +- PhpFile - fichiers Php et fichiers inclus .inc.php - phpfile.inc.php
-         +- SqlFile - fichier .sql - sql.inc.php
+        +- HtmlFile - fichiers HTML, Yaml, JS ou CSS - htmlfile.inc.php
+        +- PhpFile - fichiers Php et fichiers inclus .inc.php - phpfile.inc.php
+        +- SqlFile - fichier .sql - sql.inc.php
       +- InFile (abstract) - sur-classe des éléments qui ne correspondent pas à des fichiers - htmlfile.inc.php
-         +- FunClassVar - fonction, classe ou variable - phpfile.inc.php
-         +- Method - méthodes - phpfile.inc.php
-         +- Parameter - paramètres d'une fonction ou d'une méthode - phpfile.inc.php
-         +- Screen - écrans - htmlfile.inc.php
-         +- SqlDB - Base SQL - sql.inc.php
-         +- SqlTable - Table SQL - sql.inc.php
-         +- Column - Colonne d'une table SQL - sql.inc.php
-         +- Synchro - infos de synchronisation - synchro.inc.php
-    - Type - définition d'un type - phpfile.inc.php
+        +- FunClassVar - fonction, classe ou variable - phpfile.inc.php
+        +- Method - méthodes - phpfile.inc.php
+        +- Parameter - paramètres d'une fonction ou d'une méthode - phpfile.inc.php
+        +- Screen - écrans - htmlfile.inc.php
+        +- SqlDB - Base SQL - sql.inc.php
+        +- SqlTable - Table SQL - sql.inc.php
+        +- Column - Colonne d'une table SQL - sql.inc.php
+        +- Synchro - infos de synchronisation - synchro.inc.php
+    +- Type - définition d'un type - phpfile.inc.php
   
   Source publié sur: https://github.com/benoitdavidfr/phpdoc
   
 journal: |
+  7/5/2019:
+    - ajout de liens appelés requires et forks avec possibilité d'un lien vers un module
+      les liens entre fichiers sont nombreux et difficiles à exploiter, il faut documenter explicitement les liens entre modules
+      qui sont les plus importants
+    - ajout d'un export JSON de la doc
   27-28/4/2019:
     - remplacement de Spyc par le module Yaml de Symfony
     - ajout dans phpdoc.php de l'écriture de root.pser
@@ -42,14 +48,14 @@ journal: |
     modifs pour faciliter la description des bases MongoDB
   19/4/2017:
     typage des paramètres des méthodes (Php 7)
-  9/4/2017
+  9/4/2017:
     - portage sur MacOsX:
     - remplacement yaml_parse() et yaml_emit() par spycLoad() et spycDump()
-  21/2/2017
+  21/2/2017:
     Revoir la gestion des appels entre fonction/méthodes:
     Les liens use ne sont pas renseignés car trop nombreux et trop complexes à gérer.
     Ces liens d'appels pourraient être gérés automatiquement dans la grande majorité des cas.
-  4/12/2016
+  4/12/2016:
     ajout d'un mécanisme de précalcul pour accélérer l'affichage
     Dans chaque module principal, un éventuel fichier phpdocagg.yaml stocke la doc pour l'ensemble du module.
     Le fichier est utilisé, s'il existe, lors de l'affichage. Sinon, les fichiers référencés dans phpdoc.yaml sont consultés.
@@ -67,6 +73,7 @@ submodules:
 phpScripts:
   - /phpdoc/index.php
   - /phpdoc/phpdoc.php
+  - /phpdoc/export.php
   - /phpdoc/verifincall.php
   - /phpdoc/stats.php
 phpIncludes:

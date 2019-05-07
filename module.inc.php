@@ -32,7 +32,7 @@ class Module extends Elt {
 // [ 'properties' => [ name=>type ], 'childCategories' => [ category => [ 'class'=>categoryClass ] ] ]
   static $structure = [
     'properties'=>[ // liste des propriétés
-//      'name' => 'string',
+      //'name' => 'string',
       'path' => 'string',
       'title' => 'string',
       'doc' => 'text',
@@ -47,6 +47,10 @@ class Module extends Elt {
       'sqlDBs'=>'SqlDB',
       'sqlFiles'=>'SqlFile',
     ],
+    'links'=>[
+      'requires', // Modules utilisés
+      'forks', // Modules ou fichiers forkés
+    ],
   ];
   
 /*PhpDoc: methods
@@ -60,6 +64,8 @@ title: "function name(): string - Le nom d'un module est son path"
     } else
       return $this->properties['path'];
   }
+  
+  function path(): ?string { return isset($this->properties['path']) ? $this->properties['path'] : null; }
   
 /*PhpDoc: methods
 name:  __construct
@@ -105,12 +111,12 @@ name:  submodule
 title: "function submodule(string $name): Module - Renvoie le sous-module portant le nom indiqué"
 */
   function submodule(string $name): Module {
-//    echo "<pre>this="; print_r($this); echo "</pre>\n";
-//    echo "<br>Module::submodule($name) sur $this\n";
+    //echo "<pre>this="; print_r($this); echo "</pre>\n";
+    //echo "<br>Module::submodule($name) sur $this\n";
     if (!isset($this->children['submodules']))
       throw new Exception("submodules non defini dans children");
     foreach ($this->children['submodules'] as $submod) {
-//      echo "<br>submod=$submod\n";
+      //echo "<br>submod=$submod\n";
       if (!isset($submod->properties['path']))
         throw new Exception("sous-module '$name' non trouvé dans le module $this");
       elseif ($this->properties['path']=='/')
@@ -118,30 +124,33 @@ title: "function submodule(string $name): Module - Renvoie le sous-module portan
           strlen($this->properties['path']));
       else
         $submodname = substr($submod->properties['path'],strlen($this->properties['path'])+1);
-//      echo "<br>submodname=$submodname\n";
+      //echo "<br>submodname=$submodname\n";
       if ($submodname==$name)
         return $submod;
     }
-//    echo "<pre>";
+    //echo "<pre>";
     throw new Exception("sous-module '$name' non trouvé dans le module $this");
   }
   
 /*PhpDoc: methods
 name:  solveLink
-title: "function solveLink(string $categoryName, string $link): Elt - Résoud un lien"
+title: "function solveLink(Module $root, string $categoryName, string $link): Elt - Résoud un lien"
 */
-  function solveLink(string $categoryName, string $link): Elt {
-    //echo "<br>Module::solveLink($categoryName, $link) sur $this\n";
-    if (strncmp($link,'../',3)==0) {
+  function solveLink(Module $root, string $categoryName, string $link): Elt {
+    //echo "<li>Module::solveLink($categoryName, $link) sur $this\n";
+    if (strncmp($link, '/', 1)==0) { // navigue dans la racine
+      return $root->solveLink($root, $categoryName, substr($link,1));
+    }
+    if (strncmp($link,'../',3)==0) { // navigue dans le parent
       if (!$this->parent)
         throw new Exception("lien '$link' non trouvé dans le module $this");
-      return $this->parent->solveLink($categoryName, substr($link,3));
+      return $this->parent->solveLink($root, $categoryName, substr($link,3));
     }
-    if (($pos=strpos($link,'/')) !== FALSE) {
+    if (($pos=strpos($link,'/')) !== FALSE) { // navigue dans un sous-module
       $submodule = substr($link, 0, $pos);
       //echo "<br>submodule=$submodule\n";
       //echo "<br>link=",substr($link,$pos+1),"\n";
-      return $this->submodule($submodule)->solveLink($categoryName, substr($link,$pos+1));
+      return $this->submodule($submodule)->solveLink($root, $categoryName, substr($link,$pos+1));
     }
     if (($pos=strpos($link,'?')) !== FALSE) {
       $filename = substr($link, 0, $pos);
@@ -156,7 +165,7 @@ title: "function solveLink(string $categoryName, string $link): Elt - Résoud un
     if (!$anchor)
       return $child;
     else
-      return $child->solveLink($categoryName, $anchor);
+      return $child->solveLink($root, $categoryName, $anchor);
   }
   
 /*PhpDoc: methods

@@ -44,7 +44,7 @@ function phpdoc(array $context): void {
 
   if ($action == 'update') { // actualisation de root.pser à partir de root.yaml 
     $root = new Module(Elt::read_yaml(__DIR__.'/root.yaml'), $context);
-    $root->solveLinks();
+    $root->solveLinks($root);
     $root->store(__DIR__.'/root.pser');
     $action = 'show';
   }

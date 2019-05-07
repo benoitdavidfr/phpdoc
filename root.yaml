@@ -11,13 +11,17 @@ journal: |
   26-27/11/2016:
     première version
 submodules:
+# composants généraux
   - /vendor
   - /phplib
-#  - /phpdoc1
+  - /markdown
+  - /spyc
+# outils généraux
+  #- /phpdoc1
   - /phpdoc
   - /docker
   - /synchro
-  - /spyc
+# autres
   - /gegeom
   - /geometry
   - /geom2d
@@ -28,6 +32,9 @@ submodules:
   - /geoapi
   - /georef
   - /gexplor
+  - /data
+  - /yamldoc
+  - /eurovoc
   - /geocat3
   - /vieweval
   - /gcatstat
@@ -39,11 +46,11 @@ submodules:
   - /tools
   - /autoconf
   - /geoatom
-#  - /migcat1
-#  - /migcat2
+  #- /migcat1
+  #- /migcat2
   - /migcat3
-#  - /migcat4
-#  - /geofla
+  #- /migcat4
+  #- /geofla
   - /itowns2
   - /gpp3dl
   - /gcat
@@ -51,5 +58,3 @@ submodules:
   - /gcatas
   - /ovh
   - /gaspar
-  - /data
-  - /yamldoc
