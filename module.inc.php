@@ -29,7 +29,7 @@ title: class Module extends Elt - module ou sous-module
 methods:
 */
 class Module extends Elt {
-// [ 'properties' => [ name=>type ], 'childCategories' => [ category => [ 'class'=>categoryClass ] ] ]
+  // ['properties'=> [name=> type], 'childCategories'=> [category=> categoryClass], 'links'=>[name] ]
   static $structure = [
     'properties'=>[ // liste des propriétés
       //'name' => 'string',
