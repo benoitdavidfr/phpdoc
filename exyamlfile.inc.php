@@ -4,6 +4,8 @@ name:  exyamlfile.inc.php
 title: exyamlfile.inc.php - définit les fonctions extractYamlFromFile() et  extractYamlFromYamlFile()
 functions:
 journal: |
+  8/7/2020:
+    correction d'un bug dans extractYamlFromYamlFile()
   27/4/2019:
     remplacement de Spyc par le module Yaml de Symfony
   25/11/2017:
@@ -31,11 +33,12 @@ doc: |
   sinon un phpDoc est construit sur d'éventuels champs name, title et doc
 */
 function extractYamlFromYamlFile(string $filepath) {
+  //echo "extractYamlFromYamlFile($filepath)<br>\n";
   try {
-    $yaml = Yaml::parse($filepath);
+    $yaml = Yaml::parseFile($filepath);
   }
   catch(ParseException $e) {
-    die("Erreur de lecture Yaml dans $filepath : ".$e->getMessage());
+    echo "Erreur de lecture Yaml dans $filepath : ".$e->getMessage()."\n";
   }
   if (isset($yaml['phpDoc']))
     return $yaml['phpDoc'];
@@ -44,6 +47,8 @@ function extractYamlFromYamlFile(string $filepath) {
     $doc['title'] = $yaml['title'];
   if (isset($yaml['doc']))
     $doc['doc'] = $yaml['doc'];
+  elseif (isset($yaml['description']))
+    $doc['doc'] = $yaml['description'];
   return $doc;
 }
 
@@ -115,7 +120,7 @@ function extractYamlFromFile(string $filepath): ?array {
     }
     $yamls[] = [$name, $yaml];
   }
-  //  echo "<pre>yamls avant agrégation="; print_r($yamls);  echo "</pre>\n";
+  //echo "<pre>yamls avant agrégation="; print_r($yamls);  echo "</pre>\n";
   
   while (count($yamls) > 1) {
     list($name,$yaml) = array_pop($yamls);

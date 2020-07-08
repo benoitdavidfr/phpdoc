@@ -53,10 +53,10 @@ class Module extends Elt {
     ],
   ];
   
-/*PhpDoc: methods
-name:  name
-title: "function name(): string - Le nom d'un module est son path"
-*/
+  /*PhpDoc: methods
+  name:  name
+  title: "function name(): string - Le nom d'un module est son path"
+  */
   function name(): string {
     if (!isset($this->properties['path'])) {
       echo "<pre>";
@@ -65,19 +65,21 @@ title: "function name(): string - Le nom d'un module est son path"
       return $this->properties['path'];
   }
   
-  function path(): ?string { return isset($this->properties['path']) ? $this->properties['path'] : null; }
+  function path(): string { return isset($this->properties['path']) ? $this->properties['path'] : ''; }
   
-/*PhpDoc: methods
-name:  __construct
-title: function __construct($param, array $context) - créée un module à partir des paramètres et du contexte
-doc: |
-  $param est généralement le nom du répertoire, il peut aussi être un tableau de paramètres
-*/
+  /*PhpDoc: methods
+  name:  __construct
+  title: function __construct($param, array $context) - créée un module à partir des paramètres et du contexte
+  doc: |
+    $param est généralement le nom du répertoire, il peut aussi être un tableau de paramètres
+  */
   function __construct($param, array $context) {
+    $param2 = $param;
     if (isset($_GET['debug']) && $_GET['debug']) {
       echo "Appel de ",get_class($this),"::__construct() avec param=<pre>"; var_dump($param); echo "</pre>\n";
     }
     if (!is_array($param)) {
+      //echo "creation du module $param<br>\n";
       if (is_file(__DIR__.'/..'.$param.'/phpdocagg.pser')) {
         $yaml = unserialize(file_get_contents('..'.$param.'/phpdocagg.pser'));
         //echo "Lecture de $param/phpdocagg.pser OK<br>\n";
@@ -96,29 +98,33 @@ doc: |
         $this->fileNotFound = true;
         return;
       }
+      if (!isset($param['path'])) {
+        throw new Exception("Erreur champ param absent pour $param2");
+      }
     }
     $this->init($param, $context);
   }
     
-/*PhpDoc: methods
-name:  module
-title: function module() - Retourne le module contenant l'objet ; pour un module, c'est le module lui-même
-*/
+  /*PhpDoc: methods
+  name:  module
+  title: function module() - Retourne le module contenant l'objet ; pour un module, c'est le module lui-même
+  */
   function module(): Module { return $this; }
   
-/*PhpDoc: methods
-name:  submodule
-title: "function submodule(string $name): Module - Renvoie le sous-module portant le nom indiqué"
-*/
+  /*PhpDoc: methods
+  name:  submodule
+  title: "function submodule(string $name): Module - Renvoie le sous-module portant le nom indiqué"
+  */
   function submodule(string $name): Module {
-    //echo "<pre>this="; print_r($this); echo "</pre>\n";
-    //echo "<br>Module::submodule($name) sur $this\n";
+    //echo "<br><b>Module::submodule($name) sur $this</b>\n";
     if (!isset($this->children['submodules']))
       throw new Exception("submodules non defini dans children");
     foreach ($this->children['submodules'] as $submod) {
       //echo "<br>submod=$submod\n";
-      if (!isset($submod->properties['path']))
-        throw new Exception("sous-module '$name' non trouvé dans le module $this");
+      if (!isset($submod->properties['path'])) {
+        //throw new Exception("sous-module '$name' non trouvé dans le module $this");
+        throw new Exception("sous-module $submod mal défini");
+      }
       elseif ($this->properties['path']=='/')
         $submodname = substr($submod->properties['path'],
           strlen($this->properties['path']));
@@ -132,10 +138,10 @@ title: "function submodule(string $name): Module - Renvoie le sous-module portan
     throw new Exception("sous-module '$name' non trouvé dans le module $this");
   }
   
-/*PhpDoc: methods
-name:  solveLink
-title: "function solveLink(Module $root, string $categoryName, string $link): Elt - Résoud un lien"
-*/
+  /*PhpDoc: methods
+  name:  solveLink
+  title: "function solveLink(Module $root, string $categoryName, string $link): Elt - Résoud un lien"
+  */
   function solveLink(Module $root, string $categoryName, string $link): Elt {
     //echo "<li>Module::solveLink($categoryName, $link) sur $this\n";
     if (strncmp($link, '/', 1)==0) { // navigue dans la racine
@@ -168,11 +174,11 @@ title: "function solveLink(Module $root, string $categoryName, string $link): El
       return $child->solveLink($root, $categoryName, $anchor);
   }
   
-/*PhpDoc: methods
-name: show
-title: "function show(): void - redéfinition de show()"
-doc: en plus de l'affichage générique, sur un module des actions sont proposées
-*/
+  /*PhpDoc: methods
+  name: show
+  title: "function show(): void - redéfinition de show()"
+  doc: en plus de l'affichage générique, sur un module des actions sont proposées
+  */
   function show(): void {
     parent::show();
     echo "<a href='?action=undocumentedFiles&amp;key=",urlencode($this->globalKey()),
@@ -189,10 +195,10 @@ doc: en plus de l'affichage générique, sur un module des actions sont proposé
            "'>Suppression du phpdocagg.yaml</a><br>\n";
   }
   
-/*PhpDoc: methods
-name: listfiles
-title: "function listfiles(): void - affiche la liste des fichiers"
-*/
+  /*PhpDoc: methods
+  name: listfiles
+  title: "function listfiles(): void - affiche la liste des fichiers"
+  */
   function listfiles(): void {
     if (!$this->parent)
       echo "<pre>";
@@ -208,10 +214,10 @@ title: "function listfiles(): void - affiche la liste des fichiers"
           }
   }
   
-/*PhpDoc: methods
-name: notdocFiles
-title: function undocumentedFiles() - Compare les fichiers définis et les fichiers existants
-*/
+  /*PhpDoc: methods
+  name: notdocFiles
+  title: function undocumentedFiles() - Compare les fichiers définis et les fichiers existants
+  */
   function undocumentedFiles() {
     $dir = $this->properties['path'];
     if (!is_dir('..'.$dir)) {
@@ -275,12 +281,12 @@ title: function undocumentedFiles() - Compare les fichiers définis et les fichi
       }
   }
   
-/*PhpDoc: methods
-name:  yaml
-title: "private function yaml(): array - fabrique le Yaml correspondant à un module sous la forme d'un tableau Php"
-doc: |
-  Utilisé par makeagg()
-*/
+  /*PhpDoc: methods
+  name:  yaml
+  title: "private function yaml(): array - fabrique le Yaml correspondant à un module sous la forme d'un tableau Php"
+  doc: |
+    Utilisé par makeagg()
+  */
   private function yaml($dirpath=null): array {
 //    echo "Module::yaml(dirpath=$dirpath)<br>\n";
 //    $this->dump();
@@ -304,14 +310,14 @@ doc: |
     return $yaml;
   }
   
-/*PhpDoc: methods
-name: makeagg
-title: "function makeagg($context=null): void - fabrique phpdocagg.yaml/pser qui intègrent en un fichier tte la doc du module"
-doc: |
-  Le paramètre context :
-  - contient effectivement le contexte si la méthode est appelée par phpdoc.php
-  - vaut null si la méthode est appelée par makeallagg()
-*/
+  /*PhpDoc: methods
+  name: makeagg
+  title: "function makeagg($context=null): void - fabrique phpdocagg.yaml/pser qui intègrent en un fichier tte la doc du module"
+  doc: |
+    Le paramètre context :
+    - contient effectivement le contexte si la méthode est appelée par phpdoc.php
+    - vaut null si la méthode est appelée par makeallagg()
+  */
   function makeagg(array $context=null): void {
     $yaml = $this->yaml();
     //echo "<pre>yaml="; print_r($yaml); echo "</pre>\n";
@@ -325,15 +331,15 @@ doc: |
       $this->show();
   }
   
-/*PhpDoc: methods
-name: delagg
-title: "function delagg(): void - suppression du phpdocagg.yaml"
-doc: |
-  Après avoir supprimé le fichier phpdocagg.yaml, le contenu de la doc est probablement différent
-  Il est donc important de relire les fichiers de doc.
-  L'appel de phpdoc() permet d'effectuer cette relecture.
-  Pour éviter de boucler le contexte est modifié et est testé.
-*/
+  /*PhpDoc: methods
+  name: delagg
+  title: "function delagg(): void - suppression du phpdocagg.yaml"
+  doc: |
+    Après avoir supprimé le fichier phpdocagg.yaml, le contenu de la doc est probablement différent
+    Il est donc important de relire les fichiers de doc.
+    L'appel de phpdoc() permet d'effectuer cette relecture.
+    Pour éviter de boucler le contexte est modifié et est testé.
+  */
   function delagg($context): void {
     if (!isset($context['delagg'])) {
       $dirpath = '..'.$this->properties['path'];
@@ -357,10 +363,10 @@ doc: |
     }
   }
   
-/*PhpDoc: methods
-name: makeallagg
-title: "function makeallagg(): void - appelle makeagg() pour chacun des modules de root"
-*/
+  /*PhpDoc: methods
+  name: makeallagg
+  title: "function makeallagg(): void - appelle makeagg() pour chacun des modules de root"
+  */
   function makeallagg(): void {
     if ($this->parent)
       return;

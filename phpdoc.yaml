@@ -2,17 +2,18 @@ title: PhpDoc2 - Documentation de scripts Php V2
 path: /phpdoc
 doc: |
   PhpDoc définit une méthode générique de documentation de programmes Php fondée sur:
-  1) la création dans chaque répertoire concerné (ou module) d'un fichier phpdoc.yaml qui liste en YAML les scripts, les fichiers inclus 
-     et d'éventuels sous-modules
+  1) la création dans chaque répertoire concerné (ou module) d'un fichier phpdoc.yaml qui liste en YAML les scripts,
+     les fichiers inclus et d'éventuels sous-modules
   2) l'insertion dans chaque fichier .php ou .inc.php d'une documentation comme commentaires avec la chaine /*PhpDoc:
      sous une forme structurée en YAML
   3) le script phpdoc.php qui :
     a) référence les modules de premier niveau,
     b) affiche une documentation issue des éléments référencés
-    c) effectue des vérifications de cohérence entre les déclarations de la doc et le contenu effectif des répertoires et du code Php
+    c) effectue des vérifications de cohérence entre les déclarations de la doc et le contenu effectif des répertoires
+       et du code Php
 
-  Le code de PhpDoc est réparti dans différentes classes correspondant à chacun des concepts définis plus une classe générique
-  appelée Elt qui implémente les méthodes génériques aux différentes autres classes.
+  Le code de PhpDoc est réparti dans différentes classes correspondant à chacun des concepts définis
+  plus une classe générique appelée Elt qui implémente les méthodes génériques aux différentes autres classes.
   
   Hiérarchie des classes et fichier dans laquelle chaque classe est définie:
     +- Elt (abstract) - un élément générique de la doc - elt.inc.php
@@ -35,10 +36,12 @@ doc: |
   Source publié sur: https://github.com/benoitdavidfr/phpdoc
   
 journal: |
+  8/7/2020:
+    correction d'un bug dans la fonction extractYamlFromYamlFile() définie dans exyamfile.inc.php
   7/5/2019:
     - ajout de liens appelés requires et forks avec possibilité d'un lien vers un module
-      les liens entre fichiers sont nombreux et difficiles à exploiter, il faut documenter explicitement les liens entre modules
-      qui sont les plus importants
+      les liens entre fichiers sont nombreux et difficiles à exploiter, il faut documenter explicitement les liens entre
+      modules qui sont les plus importants
     - ajout d'un export JSON de la doc
   27-28/4/2019:
     - remplacement de Spyc par le module Yaml de Symfony

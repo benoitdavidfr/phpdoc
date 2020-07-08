@@ -11,8 +11,10 @@ journal: |
   26-27/11/2016:
     première version
 submodules:
+# applications étrangères
+  - /phpMyAdmin
+  - /phppgadmin
 # composants généraux
-  - /vendor
   - /phplib
   - /markdown
   - /spyc
@@ -21,13 +23,10 @@ submodules:
   - /phpdoc
   - /docker
   - /synchro
+# gestion géométrie/features
+  - /geovect
 # autres
-  - /gegeom
-  - /geometry
-  - /geom2d
-  - /coordsys
-  - /syscoord
-  - /ogr2php
+  - /signets
   - /schema
   - /geoapi
   - /georef
@@ -51,10 +50,16 @@ submodules:
   - /migcat3
   #- /migcat4
   #- /geofla
-  - /itowns2
+  #- /itowns2
   - /gpp3dl
   - /gcat
   - /gcatmg
   - /gcatas
   - /ovh
   - /gaspar
+  - /rmitanch
+  - /ban
+  - /barrages
+  - /cartoenedis
+  - /rmbox
+  - /spreadsheet

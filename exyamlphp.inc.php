@@ -74,7 +74,7 @@ function extractYamlFromPhpFile(string $filepath): ?array {
         $first = 0;
       } else {
         if (!preg_match('!^/\\*PhpDoc: *([a-z]+)([^\r\n]*)[\r\n]+!', $comment, $matches, 0, strlen('')))
-          throw new Exception("nom du champ non trouvé dans extractYamlFromPhp() ligne ".__LINE__);
+          throw new Exception("nom du champ non trouvé dans extractYamlFromPhp($filepath) ligne ".__LINE__);
         $name = $matches[1];
         $modif = trim($matches[2]); // la chaine trouvée après le nom du champ
         $start = strlen($matches[0]);

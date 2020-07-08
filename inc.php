@@ -3,7 +3,6 @@
 name:  inc.php
 title: inc.php - fichiers Php à inclure pour utiliser PhpDoc
 includes:
-  - ../vendor/autoload.php
   - elt.inc.php
   - module.inc.php
   - htmlfile.inc.php
@@ -16,7 +15,7 @@ journal: |
   1/5/2019:
     première version
 */
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/elt.inc.php';
 require_once __DIR__.'/module.inc.php';
 require_once __DIR__.'/htmlfile.inc.php';

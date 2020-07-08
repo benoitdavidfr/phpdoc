@@ -28,7 +28,7 @@ doc: |
 function phpdoc(array $context): void {
   if (isset($_GET['path'])) { // affichage par path
     if ($module = Module::getByPath($_GET['path'])) {
-      $mdule->show();
+      $module->show();
     }
     elseif ($module = Module::getByPath(dirname($_GET['path']))) {
       $file = $module->findChildByName(basename($_GET['path']));
