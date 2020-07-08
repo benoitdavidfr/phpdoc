@@ -102,7 +102,8 @@ La documentation est rédigée en Yaml dans le code source:
   - pour un fichier Php, JS, CSS ou Sql, dans un commentaire commencant par `/*PhpDoc:`
   - pour un fichier Yaml, dans le contenu du fichier:
     - s'il comporte un champ `phpDoc` alors ce champ est retourné,
-    - sinon s'il comporte un champ `title` ou `doc` alors ces champs sont retournés,
+    - sinon s'il comporte un champ `title` ou `description` alors ce champ est retourné respectivement
+      comme champ `title` ou `doc`
   - pour un objet défini dans un fichier Php ou Sql, dans un commentaire commencant par `/*PhpDoc:`
     suivi du mot-clé correspondant au type d'objet:
     - `screens` pour `Screen`
